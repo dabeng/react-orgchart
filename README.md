@@ -17,7 +17,9 @@
 - chartClass
 
 # Install
-npm install @dabeng/ng-orgchart
+```
+npm install @dabeng/react-orgchart
+```
 
 # [Demo](https://codesandbox.io/s/react-orgchart-demo-sjq85)
 
