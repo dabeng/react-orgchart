@@ -1,3 +1,26 @@
+![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
+
+# [jQuery Version](https://github.com/dabeng/OrgChart)
+# [ES6 Version](http://github.com/dabeng/OrgChart.js)
+# [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
+# [Vue.js Version](https://github.com/dabeng/vue-orgchart)
+# [Angular Version -- the most space-saving solution](https://github.com/dabeng/ng-orgchart)
+
+# Properties
+- datasource
+- nodeTemplate
+- pan
+- zoom
+- zoomoutLimit
+- zoominLimit
+- containerClass
+- chartClass
+
+# Install
+npm install @dabeng/ng-orgchart
+
+# [Demo](https://codesandbox.io/s/react-orgchart-demo-sjq85)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
