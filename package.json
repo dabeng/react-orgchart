@@ -2,7 +2,10 @@
   "name": "@dabeng/react-orgchart",
   "version": "0.0.6",
   "main": "./dist/ChartContainer.js",
-  "files": [ "dist", "README.md" ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "babel": {
     "presets": [
       "@babel/preset-env",
