@@ -1,0 +1,92 @@
+.orgchart ul {
+  padding-left: 0;
+  text-align: center;
+  display: flex;
+  margin: 0;
+}
+.orgchart ul li {
+  display: inline-block;
+  position: relative;
+}
+/* excluding root node */
+.orgchart > ul > li > ul li::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 0;
+  width: 100%;
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
+  box-sizing: border-box;
+}
+
+.orgchart > ul > li > ul li:first-child::before {
+  left: calc(50% - 1px);
+  width: calc(50% + 1px);
+}
+.orgchart > ul > li > ul li:last-child::before {
+  width: calc(50% + 1px);
+}
+.orgchart > ul > li > ul li:only-child::before {
+  width: 2px;
+}
+.orgchart ul li .oc-node {
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  padding: 3px;
+  border: 2px solid transparent;
+  margin-bottom: 20px;
+}
+.orgchart ul li .oc-node:hover {
+  background-color: rgba(238, 217, 54, 0.5);
+}
+/* excluding root node */
+.orgchart > ul > li > ul li .oc-node::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 9px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+/* excluding leaf node */
+.orgchart ul li .oc-node:not(:only-child)::after {
+  content: "";
+  position: absolute;
+  bottom: -11px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 9px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+.orgchart ul li .oc-node .oc-heading {
+  box-sizing: border-box;
+  padding: 2px;
+  margin: 0;
+  width: 130px;
+  height: 20px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: rgba(217, 83, 79, 0.8);
+  color: #fff;
+  border-radius: 4px 4px 0 0;
+}
+.orgchart ul li .oc-node .oc-content {
+  box-sizing: border-box;
+  padding: 2px;
+  width: 130px;
+  height: 20px;
+  font-size: 0.625rem;
+  border: 1px solid rgba(217, 83, 79, 0.8);
+  border-radius: 0 0 4px 4px;
+  text-align: center;
+  background-color: #fff;
+  color: #333;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
