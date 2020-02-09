@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { render } from "react-dom";
 import OrganizationChart from "./components/ChartContainer";
-// import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
   constructor() {
     super();
+
     this.state = {
       ds: {
         id: "1",
@@ -33,7 +32,8 @@ class App extends Component {
             ]
           },
           { id: "9", name: "Hong Miao", title: "department manager" },
-          { id: "10", name: "Chun Miao", title: "department manager",
+          {
+            id: "10", name: "Chun Miao", title: "department manager",
             children: [
               { id: "11", name: "Yue Yue", title: "senior engineer" }
             ]
@@ -42,10 +42,20 @@ class App extends Component {
       }
     };
   }
+
   render() {
     return (
-      <OrganizationChart datasource={this.state.ds}/>
+      <>
+        <section className="toolbar">
+          <button className="btn-export" onClick={this.export.bind(this)}>Export</button>
+        </section>
+        <OrganizationChart ref={el => this.orgchart = el} datasource={this.state.ds} />
+      </>
     );
+  }
+
+  export() {
+    this.orgchart.export();
   }
 }
 

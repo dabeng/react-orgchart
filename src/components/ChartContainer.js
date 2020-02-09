@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
+import html2canvas from "html2canvas";
+import jsPDF from 'jspdf'
 import ChartNode from "./ChartNode";
 import "./ChartContainer.css";
 
@@ -24,18 +26,28 @@ const defaultProps = {
 };
 
 class ChartContainer extends React.Component {
-  startX = 0;
-  startY = 0;
-  constructor() {
-    super();
-    this.state = { transform: "", panning: false, cursor: "default" };
+
+  constructor(props) {
+    super(props);
+
+    this.startX = 0;
+    this.startY = 0;
+
+    this.state = {
+      transform: "",
+      panning: false,
+      cursor: "default",
+      exporting: false,
+      dataURL: "",
+      dowload: ""
+    };
   }
 
   render() {
     const { datasource, containerClass, chartClass } = this.props;
 
     return (
-      <div
+      <div ref={el => this.container = el}
         className={"orgchart-container " + containerClass}
         onWheel={this.props.zoom ? this.zoomHandler.bind(this) : undefined}
         onMouseUp={
@@ -45,6 +57,7 @@ class ChartContainer extends React.Component {
         }
       >
         <div
+          ref={el => this.chart = el}
           className={"orgchart " + chartClass}
           style={{ transform: this.state.transform, cursor: this.state.cursor }}
           onMouseDown={
@@ -58,10 +71,14 @@ class ChartContainer extends React.Component {
         >
           <ul>
             <ChartNode
-              datasource={datasource}
+              datasource={this.attachRel(datasource, '00')}
               nodeTemplate={this.props.nodeTemplate}
             />
           </ul>
+        </div>
+        <a className="oc-download-btn hidden" ref={el => this.downloadButton = el} href={this.state.dataURL} download={this.state.download}>&nbsp;</a>
+        <div className={`oc-mask ${this.state.exporting ? "" : "hidden"}`}>
+          <i className="oci oci-spinner spinner"></i>
         </div>
       </div>
     );
@@ -177,6 +194,81 @@ class ChartContainer extends React.Component {
   zoomHandler(e) {
     let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
     this.setChartScale(newScale);
+  }
+
+  attachRel(data, flags) {
+    var that = this;
+    data.relationship =
+      flags + (data.children && data.children.length > 0 ? 1 : 0);
+    if (data.children) {
+      data.children.forEach(function (item) {
+        that.attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
+      });
+    }
+    return data;
+  }
+
+  exportPDF(canvas, exportFilename) {
+    const canvasWidth = Math.floor(canvas.width);
+    const canvasHeight = Math.floor(canvas.height);
+    const doc = canvasWidth > canvasHeight
+      ? new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvasWidth, canvasHeight]
+      })
+      : new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvasHeight, canvasWidth]
+      });
+    doc.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0);
+    doc.save(exportFilename + '.pdf');
+  }
+
+  exportPNG(canvas, exportFilename) {
+    const isWebkit = "WebkitAppearance" in document.documentElement.style;
+    const isFf = !!window.sidebar;
+    const isEdge = navigator.appName === "Microsoft Internet Explorer" || (navigator.appName === "Netscape" && navigator.appVersion.indexOf("Edge") > -1);
+
+    if ((!isWebkit && !isFf) || isEdge) {
+      window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + ".png");
+    } else {
+      this.setState({ dataURL: canvas.toDataURL(), download: exportFilename + ".png" });
+      this.downloadButton.click();
+    }
+  }
+
+  export(exportFilename, exportFileextension) {
+    exportFilename = exportFilename || "OrgChart";
+    exportFileextension = exportFileextension || "png";
+    this.setState({ exporting: true });
+    const originalScrollLeft = this.container.scrollLeft;
+    this.container.scrollLeft = 0;
+    const originalScrollTop = this.container.scrollTop;
+    this.container.scrollTop = 0;
+    html2canvas(this.chart, {
+      width: this.chart.clientWidth,
+      height: this.chart.clientHeight,
+      onclone: function (clonedDoc) {
+        clonedDoc.querySelector(".orgchart").style.background = "none";
+        clonedDoc.querySelector(".orgchart").style.transform = "";
+      }
+    })
+      .then(canvas => {
+        if (exportFileextension.toLowerCase() === "pdf") {
+          this.exportPDF(canvas, exportFilename);
+        } else {
+          this.exportPNG(canvas, exportFilename);
+        }
+        this.setState({ exporting: false });
+        this.container.scrollLeft = originalScrollLeft;
+        this.container.scrollTop = originalScrollTop;
+      }, () => {
+        this.setState({ exporting: false });
+        this.container.scrollLeft = originalScrollLeft;
+        this.container.scrollTop = originalScrollTop;
+      });
   }
 }
 
