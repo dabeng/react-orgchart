@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./ChartNode.css";
 
@@ -7,134 +7,34 @@ const propTypes = {
   nodeTemplate: PropTypes.elementType
 };
 
-class ChartNode extends React.Component {
+const ChartNode = ({ datasource, nodeTemplate }) => {
 
-  constructor(props) {
-    super(props);
+  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(false);
+  const [topEdgeExpanded, setTopEdgeExpanded] = useState();
+  const [rightEdgeExpanded, setRightEdgeExpanded] = useState();
+  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState();
+  const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
 
-    this.state = {
-      isChildrenCollapsed: false,
-      topEdgeExpanded: undefined,
-      rightEdgeExpanded: undefined,
-      bottomEdgeExpanded: undefined,
-      leftedgeExpanded: undefined
-    };
-  }
-
-  render() {
-    const { datasource } = this.props;
-
-    return (
-      <li>
-        {this.props.nodeTemplate ? (
-          <div id={datasource.id} className="oc-node">
-            <this.props.nodeTemplate nodeData={datasource} />
-          </div>
-        ) : (
-          <div
-            id={datasource.id}
-            className={`oc-node ${
-              this.state.isChildrenCollapsed ? "isChildrenCollapsed" : ""
-            }`}
-            onMouseEnter={this.addArrows.bind(this)}
-            onMouseLeave={this.removeArrows.bind(this)}
-          >
-            <div className="oc-heading">
-              {datasource.relationship.charAt(2) === "1" && (
-                <i className="oci oci-leader oc-symbol"/>
-              )}
-              {datasource.name}
-            </div>
-            <div className="oc-content">{datasource.title}</div>
-            {datasource.relationship.charAt(0) === "1" && (
-              <i
-                className={`oc-edge verticalEdge topEdge oci ${
-                  this.state.topEdgeExpanded === undefined
-                    ? ""
-                    : this.state.topEdgeExpanded
-                    ? "oci-chevron-down"
-                    : "oci-chevron-up"
-                }`}
-                onClick={this.topEdgeClickHandler.bind(this)}
-              />
-            )}
-            {datasource.relationship.charAt(1) === "1" && (
-              <>
-                <i
-                  className={`oc-edge horizontalEdge rightEdge oci ${
-                    this.state.rightEdgeExpanded === undefined
-                      ? ""
-                      : this.state.rightEdgeExpanded
-                      ? "oci-chevron-left"
-                      : "oci-chevron-right"
-                  }`}
-                  onClick={this.hEdgeClickHandler.bind(this)}
-                />
-                <i
-                  className={`oc-edge horizontalEdge leftEdge oci ${
-                    this.state.leftEdgeExpanded === undefined
-                      ? ""
-                      : this.state.leftEdgeExpanded
-                      ? "oci-chevron-right"
-                      : "oci-chevron-left"
-                  }`}
-                  onClick={this.hEdgeClickHandler.bind(this)}
-                />
-              </>
-            )}
-            {datasource.relationship.charAt(2) === "1" && (
-              <i
-                className={`oc-edge verticalEdge bottomEdge oci ${
-                  this.state.bottomEdgeExpanded === undefined
-                    ? ""
-                    : this.state.bottomEdgeExpanded
-                    ? "oci-chevron-up"
-                    : "oci-chevron-down"
-                }`}
-                onClick={this.bottomEdgeClickHandler.bind(this)}
-              />
-            )}
-          </div>
-        )}
-        {datasource.children && (
-          <ul className={this.state.isChildrenCollapsed ? "hidden" : ""}>
-            {datasource.children.map(node => (
-              <ChartNode
-                datasource={node}
-                nodeTemplate={this.props.nodeTemplate}
-                id={node.id}
-                key={node.id}
-              />
-            ))}
-          </ul>
-        )}
-      </li>
-    );
-  }
-
-  addArrows(e) {
+  const addArrows = (e) => {
     const node = e.target.closest("li");
     const parent = node.parentNode.closest("li");
     const isAncestorsCollapsed = node && parent ? parent.firstChild.classList.contains("hidden") : undefined;
     const isSiblingsCollapsed = Array.from(node.parentNode.children).some(item => item.classList.contains("hidden"));
-    this.setState({
-      topEdgeExpanded: !isAncestorsCollapsed,
-      rightEdgeExpanded: !isSiblingsCollapsed,
-      leftEdgeExpanded: !isSiblingsCollapsed,
-      bottomEdgeExpanded: !this.state.isChildrenCollapsed
-    });
-  }
 
-  removeArrows() {
-    this.setState({
-      topEdgeExpanded: undefined,
-      rightEdgeExpanded: undefined,
-      bottomEdgeExpanded: undefined,
-      leftEdgeExpanded: undefined
-    });
-  }
+    setTopEdgeExpanded(!isAncestorsCollapsed);
+    setRightEdgeExpanded(!isSiblingsCollapsed);
+    setLeftEdgeExpanded(!isSiblingsCollapsed);
+    setBottomEdgeExpanded(!isChildrenCollapsed);
+  };
 
-  toggleAncestors(actionNode) {
+  const removeArrows = () => {
+    setTopEdgeExpanded(undefined);
+    setRightEdgeExpanded(undefined);
+    setBottomEdgeExpanded(undefined);
+    setLeftEdgeExpanded(undefined);
+  };
+
+  const toggleAncestors = (actionNode) => {
     let node = actionNode.parentNode.closest("li");
     if (!node) return;
     const isAncestorsCollapsed = node.firstChild.classList.contains("hidden");
@@ -148,7 +48,7 @@ class ChartNode extends React.Component {
         actionNode.parentNode.children
       ).some(item => item.classList.contains("hidden"));
       if (!isSiblingsCollapsed) {
-        this.toggleSiblings(actionNode);
+        toggleSiblings(actionNode);
       }
       actionNode.classList.add(...("isAncestorsCollapsed" + (isSiblingsCollapsed ? "" : " isSiblingsCollapsed")).split(" "));
       node.firstChild.classList.add("hidden");
@@ -157,26 +57,22 @@ class ChartNode extends React.Component {
         node.parentNode.closest("li") &&
         !node.parentNode.closest("li").firstChild.classList.contains("hidden")
       ) {
-        this.toggleAncestors(node);
+        toggleAncestors(node);
       }
     }
-  }
+  };
 
-  topEdgeClickHandler(e) {
-    this.setState({
-      topEdgeExpanded: !this.state.topEdgeExpanded
-    });
-    this.toggleAncestors(e.target.closest("li"));
-  }
+  const topEdgeClickHandler = (e) => {
+    setTopEdgeExpanded(!topEdgeExpanded);
+    toggleAncestors(e.target.closest("li"));
+  };
 
-  bottomEdgeClickHandler() {
-    this.setState({
-      isChildrenCollapsed: !this.state.isChildrenCollapsed,
-      bottomEdgeExpanded: !this.state.bottomEdgeExpanded
-    });
-  }
+  const bottomEdgeClickHandler = () => {
+    setIsChildrenCollapsed(!isChildrenCollapsed);
+    setBottomEdgeExpanded(!bottomEdgeExpanded);
+  };
 
-  toggleSiblings(actionNode) {
+  const toggleSiblings = (actionNode) => {
     let node = actionNode.previousSibling;
     const isSiblingsCollapsed = Array.from(actionNode.parentNode.children).some(
       item => item.classList.contains("hidden")
@@ -205,17 +101,103 @@ class ChartNode extends React.Component {
       .closest("li")
       .firstChild.classList.contains("hidden");
     if (isAncestorsCollapsed) {
-      this.toggleAncestors(actionNode);
+      toggleAncestors(actionNode);
     }
-  }
+  };
 
-  hEdgeClickHandler(e) {
-    this.setState({
-      leftEdgeExpanded: !this.state.leftEdgeExpanded,
-      rightEdgeExpanded: !this.state.rightEdgeExpanded
-    });
-    this.toggleSiblings(e.target.closest("li"));
-  }
+  const hEdgeClickHandler = (e) => {
+    setLeftEdgeExpanded(!leftEdgeExpanded);
+    setRightEdgeExpanded(!rightEdgeExpanded);
+    toggleSiblings(e.target.closest("li"));
+  };
+
+  return (
+    <li>
+      {nodeTemplate ? (
+        <div id={datasource.id} className="oc-node">
+          <this.props.nodeTemplate nodeData={datasource} />
+        </div>
+      ) : (
+          <div
+            id={datasource.id}
+            className={`oc-node ${
+              isChildrenCollapsed ? "isChildrenCollapsed" : ""
+              }`}
+            onMouseEnter={addArrows}
+            onMouseLeave={removeArrows}
+          >
+            <div className="oc-heading">
+              {datasource.relationship.charAt(2) === "1" && (
+                <i className="oci oci-leader oc-symbol" />
+              )}
+              {datasource.name}
+            </div>
+            <div className="oc-content">{datasource.title}</div>
+            {datasource.relationship.charAt(0) === "1" && (
+              <i
+                className={`oc-edge verticalEdge topEdge oci ${
+                  topEdgeExpanded === undefined
+                    ? ""
+                    : topEdgeExpanded
+                      ? "oci-chevron-down"
+                      : "oci-chevron-up"
+                  }`}
+                onClick={topEdgeClickHandler}
+              />
+            )}
+            {datasource.relationship.charAt(1) === "1" && (
+              <>
+                <i
+                  className={`oc-edge horizontalEdge rightEdge oci ${
+                    rightEdgeExpanded === undefined
+                      ? ""
+                      : rightEdgeExpanded
+                        ? "oci-chevron-left"
+                        : "oci-chevron-right"
+                    }`}
+                  onClick={hEdgeClickHandler}
+                />
+                <i
+                  className={`oc-edge horizontalEdge leftEdge oci ${
+                    leftEdgeExpanded === undefined
+                      ? ""
+                      : leftEdgeExpanded
+                        ? "oci-chevron-right"
+                        : "oci-chevron-left"
+                    }`}
+                  onClick={hEdgeClickHandler}
+                />
+              </>
+            )}
+            {datasource.relationship.charAt(2) === "1" && (
+              <i
+                className={`oc-edge verticalEdge bottomEdge oci ${
+                  bottomEdgeExpanded === undefined
+                    ? ""
+                    : bottomEdgeExpanded
+                      ? "oci-chevron-up"
+                      : "oci-chevron-down"
+                  }`}
+                onClick={bottomEdgeClickHandler}
+              />
+            )}
+          </div>
+        )}
+      {datasource.children && (
+        <ul className={isChildrenCollapsed ? "hidden" : ""}>
+          {datasource.children.map(node => (
+            <ChartNode
+              datasource={node}
+              nodeTemplate={nodeTemplate}
+              id={node.id}
+              key={node.id}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+
 }
 
 ChartNode.propTypes = propTypes;

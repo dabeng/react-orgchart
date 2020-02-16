@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 import html2canvas from "html2canvas";
 import jsPDF from 'jspdf'
@@ -25,70 +25,38 @@ const defaultProps = {
   chartClass: ""
 };
 
-class ChartContainer extends React.Component {
+const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoominLimit, containerClass, chartClass, nodeTemplate }, ref) => {
 
-  constructor(props) {
-    super(props);
+  const startX = 0;
+  const startY = 0;
+  const container = useRef();
+  const chart = useRef();
+  const downloadButton = useRef();
 
-    this.startX = 0;
-    this.startY = 0;
+  const [transform, setTransform] = useState("");
+  const [panning, setPanning] = useState(false);
+  const [cursor, setCursor] = useState("default");
+  const [exporting, setExporting] = useState(false);
+  const [dataURL, setDataURL] = useState("");
+  const [download, setDownload] = useState("");
 
-    this.state = {
-      transform: "",
-      panning: false,
-      cursor: "default",
-      exporting: false,
-      dataURL: "",
-      dowload: ""
-    };
+  const attachRel = (data, flags) => {
+    var that = this;
+    data.relationship =
+      flags + (data.children && data.children.length > 0 ? 1 : 0);
+    if (data.children) {
+      data.children.forEach(function (item) {
+        attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
+      });
+    }
+    return data;
   }
 
-  render() {
-    const { datasource, containerClass, chartClass } = this.props;
-
-    return (
-      <div ref={el => this.container = el}
-        className={"orgchart-container " + containerClass}
-        onWheel={this.props.zoom ? this.zoomHandler.bind(this) : undefined}
-        onMouseUp={
-          this.props.pan && this.state.panning
-            ? this.panEndHandler.bind(this)
-            : undefined
-        }
-      >
-        <div
-          ref={el => this.chart = el}
-          className={"orgchart " + chartClass}
-          style={{ transform: this.state.transform, cursor: this.state.cursor }}
-          onMouseDown={
-            this.props.pan ? this.panStartHandler.bind(this) : undefined
-          }
-          onMouseMove={
-            this.props.pan && this.state.panning
-              ? this.panHandler.bind(this)
-              : undefined
-          }
-        >
-          <ul>
-            <ChartNode
-              datasource={this.attachRel(datasource, '00')}
-              nodeTemplate={this.props.nodeTemplate}
-            />
-          </ul>
-        </div>
-        <a className="oc-download-btn hidden" ref={el => this.downloadButton = el} href={this.state.dataURL} download={this.state.download}>&nbsp;</a>
-        <div className={`oc-mask ${this.state.exporting ? "" : "hidden"}`}>
-          <i className="oci oci-spinner spinner"></i>
-        </div>
-      </div>
-    );
-  }
-
-  panEndHandler() {
+  const panEndHandler = () => {
     this.setState({ panning: false, cursor: "default" });
-  }
+  };
 
-  panHandler(e) {
+  const panHandler = (e) => {
     let newX = 0;
     let newY = 0;
     if (!e.targetTouches) {
@@ -126,7 +94,7 @@ class ChartContainer extends React.Component {
     }
   }
 
-  panStartHandler(e) {
+  const panStartHandler = (e) => {
     if (e.target.closest(".oc-node")) {
       this.setState({ panning: false });
       return;
@@ -158,7 +126,7 @@ class ChartContainer extends React.Component {
     }
   }
 
-  setChartScale(newScale) {
+  const setChartScale = (newScale) => {
     let matrix = [];
     let targetScale = 1;
     if (this.state.transform === "") {
@@ -189,26 +157,14 @@ class ChartContainer extends React.Component {
         }
       }
     }
-  }
+  };
 
-  zoomHandler(e) {
+  const zoomHandler = (e) => {
     let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
     this.setChartScale(newScale);
   }
 
-  attachRel(data, flags) {
-    var that = this;
-    data.relationship =
-      flags + (data.children && data.children.length > 0 ? 1 : 0);
-    if (data.children) {
-      data.children.forEach(function (item) {
-        that.attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
-      });
-    }
-    return data;
-  }
-
-  exportPDF(canvas, exportFilename) {
+  const exportPDF = (canvas, exportFilename) => {
     const canvasWidth = Math.floor(canvas.width);
     const canvasHeight = Math.floor(canvas.height);
     const doc = canvasWidth > canvasHeight
@@ -226,7 +182,7 @@ class ChartContainer extends React.Component {
     doc.save(exportFilename + '.pdf');
   }
 
-  exportPNG(canvas, exportFilename) {
+  const exportPNG = (canvas, exportFilename) => {
     const isWebkit = "WebkitAppearance" in document.documentElement.style;
     const isFf = !!window.sidebar;
     const isEdge = navigator.appName === "Microsoft Internet Explorer" || (navigator.appName === "Netscape" && navigator.appVersion.indexOf("Edge") > -1);
@@ -234,43 +190,86 @@ class ChartContainer extends React.Component {
     if ((!isWebkit && !isFf) || isEdge) {
       window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + ".png");
     } else {
-      this.setState({ dataURL: canvas.toDataURL(), download: exportFilename + ".png" });
-      this.downloadButton.click();
+      setDataURL(canvas.toDataURL());
+      setDownload(exportFilename + ".png");
+      downloadButton.current.click();
     }
   }
 
-  export(exportFilename, exportFileextension) {
-    exportFilename = exportFilename || "OrgChart";
-    exportFileextension = exportFileextension || "png";
-    this.setState({ exporting: true });
-    const originalScrollLeft = this.container.scrollLeft;
-    this.container.scrollLeft = 0;
-    const originalScrollTop = this.container.scrollTop;
-    this.container.scrollTop = 0;
-    html2canvas(this.chart, {
-      width: this.chart.clientWidth,
-      height: this.chart.clientHeight,
-      onclone: function (clonedDoc) {
-        clonedDoc.querySelector(".orgchart").style.background = "none";
-        clonedDoc.querySelector(".orgchart").style.transform = "";
-      }
-    })
-      .then(canvas => {
-        if (exportFileextension.toLowerCase() === "pdf") {
-          this.exportPDF(canvas, exportFilename);
-        } else {
-          this.exportPNG(canvas, exportFilename);
+  useImperativeHandle(ref, () => ({
+
+    exportTo: (exportFilename, exportFileextension) => {
+      exportFilename = exportFilename || "OrgChart";
+      exportFileextension = exportFileextension || "png";
+      setExporting(true);
+      const originalScrollLeft = container.current.scrollLeft;
+      container.current.scrollLeft = 0;
+      const originalScrollTop = container.current.scrollTop;
+      container.current.scrollTop = 0;
+      html2canvas(chart.current, {
+        width: chart.current.clientWidth,
+        height: chart.current.clientHeight,
+        onclone: function (clonedDoc) {
+          clonedDoc.querySelector(".orgchart").style.background = "none";
+          clonedDoc.querySelector(".orgchart").style.transform = "";
         }
-        this.setState({ exporting: false });
-        this.container.scrollLeft = originalScrollLeft;
-        this.container.scrollTop = originalScrollTop;
-      }, () => {
-        this.setState({ exporting: false });
-        this.container.scrollLeft = originalScrollLeft;
-        this.container.scrollTop = originalScrollTop;
-      });
-  }
-}
+      })
+        .then(canvas => {
+          if (exportFileextension.toLowerCase() === "pdf") {
+            exportPDF(canvas, exportFilename);
+          } else {
+            exportPNG(canvas, exportFilename);
+          }
+          setExporting(false);
+          container.current.scrollLeft = originalScrollLeft;
+          container.current.scrollTop = originalScrollTop;
+        }, () => {
+          setExporting(false);
+          container.current.scrollLeft = originalScrollLeft;
+          container.current.scrollTop = originalScrollTop;
+        });
+    }
+
+  }));
+
+  return (
+    <div ref={container}
+      className={"orgchart-container " + containerClass}
+      onWheel={zoom ? zoomHandler : undefined}
+      onMouseUp={
+        pan && panning
+          ? panEndHandler
+          : undefined
+      }
+    >
+      <div
+        ref={chart}
+        className={"orgchart " + chartClass}
+        style={{ transform: transform, cursor: cursor }}
+        onMouseDown={
+          pan ? panStartHandler : undefined
+        }
+        onMouseMove={
+          pan && this.state.panning
+            ? panHandler
+            : undefined
+        }
+      >
+        <ul>
+          <ChartNode
+            datasource={attachRel(datasource, '00')}
+            nodeTemplate={nodeTemplate}
+          />
+        </ul>
+      </div>
+      <a className="oc-download-btn hidden" ref={downloadButton} href={dataURL} download={download}>&nbsp;</a>
+      <div className={`oc-mask ${exporting ? "" : "hidden"}`}>
+        <i className="oci oci-spinner spinner"></i>
+      </div>
+    </div>
+  );
+
+});
 
 ChartContainer.propTypes = propTypes;
 ChartContainer.defaultProps = defaultProps;
