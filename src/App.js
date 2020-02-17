@@ -49,7 +49,7 @@ const App = () => {
       <section className="toolbar">
         <button className="btn-export" onClick={exportTo}>Export</button>
       </section>
-      <OrganizationChart ref={orgchart} datasource={ds} />
+      <OrganizationChart ref={orgchart} datasource={ds} pan={true} zoom={true} />
     </>
   );
 

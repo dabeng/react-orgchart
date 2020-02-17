@@ -27,12 +27,13 @@ const defaultProps = {
 
 const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoominLimit, containerClass, chartClass, nodeTemplate }, ref) => {
 
-  const startX = 0;
-  const startY = 0;
+
   const container = useRef();
   const chart = useRef();
   const downloadButton = useRef();
 
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
   const [transform, setTransform] = useState("");
   const [panning, setPanning] = useState(false);
   const [cursor, setCursor] = useState("default");
@@ -53,7 +54,8 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
   }
 
   const panEndHandler = () => {
-    this.setState({ panning: false, cursor: "default" });
+    setPanning(false);
+    setCursor("default");
   };
 
   const panHandler = (e) => {
@@ -61,51 +63,47 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
     let newY = 0;
     if (!e.targetTouches) {
       // pand on desktop
-      newX = e.pageX - this.startX;
-      newY = e.pageY - this.startY;
+      newX = e.pageX - startX;
+      newY = e.pageY - startY;
     } else if (e.targetTouches.length === 1) {
       // pan on mobile device
-      newX = e.targetTouches[0].pageX - this.startX;
-      newY = e.targetTouches[0].pageY - this.startY;
+      newX = e.targetTouches[0].pageX - startX;
+      newY = e.targetTouches[0].pageY - startY;
     } else if (e.targetTouches.length > 1) {
       return;
     }
-    if (this.state.transform === "") {
-      if (this.state.transform.indexOf("3d") === -1) {
-        this.setState({
-          transform: "matrix(1,0,0,1," + newX + "," + newY + ")"
-        });
+    if (transform === "") {
+      if (transform.indexOf("3d") === -1) {
+        setTransform("matrix(1,0,0,1," + newX + "," + newY + ")");
       } else {
-        this.setState({
-          transform:
-            "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0," + newX + ", " + newY + ",0,1)"
-        });
+        setTransform("matrix3d(1,0,0,0,0,1,0,0,0,0,1,0," + newX + ", " + newY + ",0,1)");
       }
     } else {
-      let matrix = this.state.transform.split(",");
-      if (this.state.transform.indexOf("3d") === -1) {
+      let matrix = transform.split(",");
+      if (transform.indexOf("3d") === -1) {
         matrix[4] = newX;
         matrix[5] = newY + ")";
       } else {
         matrix[12] = newX;
         matrix[13] = newY;
       }
-      this.setState({ transform: matrix.join(",") });
+      setTransform(matrix.join(","));
     }
   }
 
   const panStartHandler = (e) => {
     if (e.target.closest(".oc-node")) {
-      this.setState({ panning: false });
+      setPanning(false);
       return;
     } else {
-      this.setState({ panning: true, cursor: "move" });
+      setPanning(true);
+      setCursor("move");
     }
     let lastX = 0;
     let lastY = 0;
-    if (this.state.transform !== "") {
-      let matrix = this.state.transform.split(",");
-      if (this.state.transform.indexOf("3d") === -1) {
+    if (transform !== "") {
+      let matrix = transform.split(",");
+      if (transform.indexOf("3d") === -1) {
         lastX = parseInt(matrix[4]);
         lastY = parseInt(matrix[5]);
       } else {
@@ -115,45 +113,43 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
     }
     if (!e.targetTouches) {
       // pand on desktop
-      this.startX = e.pageX - lastX;
-      this.startY = e.pageY - lastY;
+      setStartX(e.pageX - lastX);
+      setStartY(e.pageY - lastY);
     } else if (e.targetTouches.length === 1) {
       // pan on mobile device
-      this.startX = e.targetTouches[0].pageX - lastX;
-      this.startY = e.targetTouches[0].pageY - lastY;
+      setStartX(e.targetTouches[0].pageX - lastX);
+      setStartY(e.targetTouches[0].pageY - lastY);
     } else if (e.targetTouches.length > 1) {
       return;
     }
   }
 
-  const setChartScale = (newScale) => {
+  const updateChartScale = (newScale) => {
     let matrix = [];
     let targetScale = 1;
-    if (this.state.transform === "") {
-      this.setState({
-        transform: "matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)"
-      });
+    if (transform === "") {
+      setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
     } else {
-      matrix = this.state.transform.split(",");
-      if (this.state.transform.indexOf("3d") === -1) {
+      matrix = transform.split(",");
+      if (transform.indexOf("3d") === -1) {
         targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
         if (
-          targetScale > this.props.zoomoutLimit &&
-          targetScale < this.props.zoominLimit
+          targetScale > zoomoutLimit &&
+          targetScale < zoominLimit
         ) {
           matrix[0] = "matrix(" + targetScale;
           matrix[3] = targetScale;
-          this.setState({ transform: matrix.join(",") });
+          setTransform(matrix.join(","));
         }
       } else {
         targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
         if (
-          targetScale > this.props.zoomoutLimit &&
-          targetScale < this.props.zoominLimit
+          targetScale > zoomoutLimit &&
+          targetScale < zoominLimit
         ) {
           matrix[0] = "matrix3d(" + targetScale;
           matrix[5] = targetScale;
-          this.setState({ transform: matrix.join(",") });
+          setTransform(matrix.join(","));
         }
       }
     }
@@ -161,7 +157,7 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
 
   const zoomHandler = (e) => {
     let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
-    this.setChartScale(newScale);
+    updateChartScale(newScale);
   }
 
   const exportPDF = (canvas, exportFilename) => {
@@ -250,7 +246,7 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
           pan ? panStartHandler : undefined
         }
         onMouseMove={
-          pan && this.state.panning
+          pan && panning
             ? panHandler
             : undefined
         }
