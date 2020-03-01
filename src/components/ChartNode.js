@@ -4,10 +4,15 @@ import "./ChartNode.css";
 
 const propTypes = {
   datasource: PropTypes.object,
-  nodeTemplate: PropTypes.elementType
+  nodeTemplate: PropTypes.elementType,
+  draggable: PropTypes.bool
 };
 
-const ChartNode = ({ datasource, nodeTemplate }) => {
+const defaultProps = {
+  draggable: false
+};
+
+const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
 
   const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(false);
   const [topEdgeExpanded, setTopEdgeExpanded] = useState();
@@ -114,7 +119,7 @@ const ChartNode = ({ datasource, nodeTemplate }) => {
   return (
     <li>
       {nodeTemplate ? (
-        <div id={datasource.id} className="oc-node">
+        <div id={datasource.id} className="oc-node" draggable={draggable ? "true" : undefined}>
           <this.props.nodeTemplate nodeData={datasource} />
         </div>
       ) : (
@@ -123,6 +128,7 @@ const ChartNode = ({ datasource, nodeTemplate }) => {
             className={`oc-node ${
               isChildrenCollapsed ? "isChildrenCollapsed" : ""
               }`}
+            draggable={draggable ? "true" : undefined}
             onMouseEnter={addArrows}
             onMouseLeave={removeArrows}
           >
@@ -191,6 +197,7 @@ const ChartNode = ({ datasource, nodeTemplate }) => {
               nodeTemplate={nodeTemplate}
               id={node.id}
               key={node.id}
+              draggable={draggable}
             />
           ))}
         </ul>
@@ -201,5 +208,6 @@ const ChartNode = ({ datasource, nodeTemplate }) => {
 }
 
 ChartNode.propTypes = propTypes;
+ChartNode.defaultProps = defaultProps;
 
 export default ChartNode;

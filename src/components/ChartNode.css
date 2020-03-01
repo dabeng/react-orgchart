@@ -44,8 +44,11 @@
   display: inline-block;
   position: relative;
   padding: 3px;
-  border: 2px solid transparent;
+  border: 2px dashed transparent;
   margin-bottom: 20px;
+}
+.orgchart ul li .oc-node.allowedDrop {
+  border-color: rgba(68, 157, 68, 0.9);
 }
 .orgchart ul li .oc-node:hover {
   background-color: rgba(238, 217, 54, 0.5);
