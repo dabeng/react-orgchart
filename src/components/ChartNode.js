@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
+import { dragNodeService } from './service';
 import "./ChartNode.css";
 
 const propTypes = {
@@ -14,11 +15,28 @@ const defaultProps = {
 
 const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
 
+  const node = useRef();
+
   const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(false);
   const [topEdgeExpanded, setTopEdgeExpanded] = useState();
   const [rightEdgeExpanded, setRightEdgeExpanded] = useState();
   const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState();
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
+  const [allowedDrop, setAllowedDrop] = useState(false);
+
+  useLayoutEffect(() => {
+    const subs = dragNodeService.getDragInfo().subscribe(draggedInfo => {
+      if (draggedInfo) {
+        setAllowedDrop(!document.querySelector("#" + draggedInfo.draggedNodeId).closest('li').querySelector("#"+node.current.id) ? true : false);
+      } else {
+        setAllowedDrop(false);
+      }
+    });
+
+    return () => {
+      subs.unsubscribe();
+    };
+  }, []);
 
   const addArrows = (e) => {
     const node = e.target.closest("li");
@@ -116,19 +134,32 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
     toggleSiblings(e.target.closest("li"));
   };
 
+  const filterAllowedDropNodes = (id) => {
+    dragNodeService.sendDragInfo(id);
+  };
+
+  const dragstartHandler = (e) => {
+    /*event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
+    // if users enable zoom or direction options
+    if (this.$chart.css('transform') !== 'none') {
+      this.createGhostNode(event);
+    }*/
+    filterAllowedDropNodes(node.current.id);
+  };
+
   return (
     <li>
       {nodeTemplate ? (
-        <div id={datasource.id} className="oc-node" draggable={draggable ? "true" : undefined}>
+        <div ref={node} id={datasource.id} className="oc-node" draggable={draggable ? "true" : undefined}>
           <this.props.nodeTemplate nodeData={datasource} />
         </div>
       ) : (
           <div
+            ref={node}
             id={datasource.id}
-            className={`oc-node ${
-              isChildrenCollapsed ? "isChildrenCollapsed" : ""
-              }`}
+            className={`oc-node ${isChildrenCollapsed ? "isChildrenCollapsed" : ""} ${allowedDrop ? "allowedDrop" : ""}`}
             draggable={draggable ? "true" : undefined}
+            onDragStart={dragstartHandler}
             onMouseEnter={addArrows}
             onMouseLeave={removeArrows}
           >

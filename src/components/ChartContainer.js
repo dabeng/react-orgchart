@@ -44,7 +44,6 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
   const [download, setDownload] = useState("");
 
   const attachRel = (data, flags) => {
-    var that = this;
     data.relationship =
       flags + (data.children && data.children.length > 0 ? 1 : 0);
     if (data.children) {
