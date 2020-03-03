@@ -1,5 +1,6 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
+import JSONDigger from "json-digger";
 import html2canvas from "html2canvas";
 import jsPDF from 'jspdf'
 import ChartNode from "./ChartNode";
@@ -42,6 +43,8 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
   const [exporting, setExporting] = useState(false);
   const [dataURL, setDataURL] = useState("");
   const [download, setDownload] = useState("");
+  const [ds, setDS] = useState(datasource);
+  const dsDigger = new JSONDigger(ds, "id", "children");
 
   const attachRel = (data, flags) => {
     data.relationship =
@@ -193,6 +196,15 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
     }
   }
 
+  const changeHierarchy = async (draggedItem, dropTarget) => {
+    await dsDigger.addChildren(dropTarget, {
+      id: 'OK',
+      name: '111',
+      title: '222'
+    });
+    setDS(dsDigger.ds);
+  };
+
   useImperativeHandle(ref, () => ({
 
     exportTo: (exportFilename, exportFileextension) => {
@@ -254,9 +266,10 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
       >
         <ul>
           <ChartNode
-            datasource={attachRel(datasource, '00')}
+            datasource={attachRel(ds, '00')}
             nodeTemplate={nodeTemplate}
             draggable={draggable}
+            changeHierarchy={changeHierarchy}
           />
         </ul>
       </div>

@@ -6,14 +6,15 @@ import "./ChartNode.css";
 const propTypes = {
   datasource: PropTypes.object,
   nodeTemplate: PropTypes.elementType,
-  draggable: PropTypes.bool
+  draggable: PropTypes.bool,
+  changeHierarchy: PropTypes.func
 };
 
 const defaultProps = {
   draggable: false
 };
 
-const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
+const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => {
 
   const node = useRef();
 
@@ -24,8 +25,14 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
   const [allowedDrop, setAllowedDrop] = useState(false);
 
+  const nodeClass = [
+    "oc-node",
+    isChildrenCollapsed ? "isChildrenCollapsed" : "",
+    allowedDrop ? "allowedDrop" : ""
+  ].filter(item => item).join(" ");
+
   useLayoutEffect(() => {
-    const subs = dragNodeService.getDragInfo().subscribe(draggedInfo => {
+    const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
       if (draggedInfo) {
         setAllowedDrop(!document.querySelector("#" + draggedInfo.draggedNodeId).closest('li').querySelector("#"+node.current.id) ? true : false);
       } else {
@@ -34,7 +41,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
     });
 
     return () => {
-      subs.unsubscribe();
+      subs1.unsubscribe();
     };
   }, []);
 
@@ -138,39 +145,67 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
     dragNodeService.sendDragInfo(id);
   };
 
-  const dragstartHandler = (e) => {
+  const dragstartHandler = (event) => {
     /*event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
     // if users enable zoom or direction options
     if (this.$chart.css('transform') !== 'none') {
       this.createGhostNode(event);
     }*/
+    event.dataTransfer.setData("text", event.currentTarget.id);
+    // highlight all potential drop targets
     filterAllowedDropNodes(node.current.id);
+  };
+
+  const dragoverHandler = (event) => {
+    // prevent default to allow drop
+    event.preventDefault();
+  };
+
+  const dragendHandler = () => {
+    // reset background of all potential drop targets
+    dragNodeService.clearDragInfo();
+  };
+
+  const dropHandler = (event) => {
+    var a = 1;
+    changeHierarchy(event.dataTransfer.getData("text"), event.currentTarget.id);
   };
 
   return (
     <li>
       {nodeTemplate ? (
-        <div ref={node} id={datasource.id} className="oc-node" draggable={draggable ? "true" : undefined}>
+        <div
+          ref={node}
+          id={datasource.id}
+          className="oc-node"
+          draggable={draggable ? "true" : undefined}
+          onDragStart={dragstartHandler}
+          onDragOver={dragoverHandler}
+          onDragEnd={dragendHandler}
+        >
           <this.props.nodeTemplate nodeData={datasource} />
         </div>
       ) : (
           <div
             ref={node}
             id={datasource.id}
-            className={`oc-node ${isChildrenCollapsed ? "isChildrenCollapsed" : ""} ${allowedDrop ? "allowedDrop" : ""}`}
+            className={nodeClass}
             draggable={draggable ? "true" : undefined}
             onDragStart={dragstartHandler}
+            onDragOver={dragoverHandler}
+            onDragEnd={dragendHandler}
+            onDrop={dropHandler}
             onMouseEnter={addArrows}
             onMouseLeave={removeArrows}
           >
             <div className="oc-heading">
-              {datasource.relationship.charAt(2) === "1" && (
+              {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
                 <i className="oci oci-leader oc-symbol" />
               )}
               {datasource.name}
             </div>
             <div className="oc-content">{datasource.title}</div>
-            {datasource.relationship.charAt(0) === "1" && (
+            {datasource.relationship && datasource.relationship.charAt(0) === "1" && (
               <i
                 className={`oc-edge verticalEdge topEdge oci ${
                   topEdgeExpanded === undefined
@@ -182,7 +217,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
                 onClick={topEdgeClickHandler}
               />
             )}
-            {datasource.relationship.charAt(1) === "1" && (
+            {datasource.relationship && datasource.relationship.charAt(1) === "1" && (
               <>
                 <i
                   className={`oc-edge horizontalEdge rightEdge oci ${
@@ -206,7 +241,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
                 />
               </>
             )}
-            {datasource.relationship.charAt(2) === "1" && (
+            {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
               <i
                 className={`oc-edge verticalEdge bottomEdge oci ${
                   bottomEdgeExpanded === undefined
@@ -229,6 +264,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable }) => {
               id={node.id}
               key={node.id}
               draggable={draggable}
+              changeHierarchy={changeHierarchy}
             />
           ))}
         </ul>

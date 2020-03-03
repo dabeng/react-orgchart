@@ -50,6 +50,9 @@
 .orgchart ul li .oc-node.allowedDrop {
   border-color: rgba(68, 157, 68, 0.9);
 }
+.orgchart ul li .oc-node.currentDropTarget {
+  background-color: rgba(68, 157, 68, 0.9);
+}
 .orgchart ul li .oc-node:hover {
   background-color: rgba(238, 217, 54, 0.5);
 }
