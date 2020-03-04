@@ -196,12 +196,9 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
     }
   }
 
-  const changeHierarchy = async (draggedItem, dropTarget) => {
-    await dsDigger.addChildren(dropTarget, {
-      id: 'OK',
-      name: '111',
-      title: '222'
-    });
+  const changeHierarchy = async (draggedItemData, dropTargetId) => {
+    await dsDigger.removeNode(draggedItemData.id);
+    await dsDigger.addChildren(dropTargetId, draggedItemData);
     setDS(dsDigger.ds);
   };
 

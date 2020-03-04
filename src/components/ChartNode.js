@@ -151,7 +151,9 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
     if (this.$chart.css('transform') !== 'none') {
       this.createGhostNode(event);
     }*/
-    event.dataTransfer.setData("text", event.currentTarget.id);
+    const copyDS = {...datasource};
+    delete copyDS.relationship;
+    event.dataTransfer.setData("text/plain", JSON.stringify(copyDS));
     // highlight all potential drop targets
     filterAllowedDropNodes(node.current.id);
   };
@@ -167,8 +169,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
   };
 
   const dropHandler = (event) => {
-    var a = 1;
-    changeHierarchy(event.dataTransfer.getData("text"), event.currentTarget.id);
+    changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
   };
 
   return (
