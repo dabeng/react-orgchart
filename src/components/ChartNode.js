@@ -169,6 +169,9 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
   };
 
   const dropHandler = (event) => {
+    if (!event.currentTarget.classList.contains("allowedDrop")) {
+      return;
+    }
     changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
   };
 
@@ -200,13 +203,13 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
             onMouseLeave={removeArrows}
           >
             <div className="oc-heading">
-              {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
+              {datasource.relationship.charAt(2) === "1" && (
                 <i className="oci oci-leader oc-symbol" />
               )}
               {datasource.name}
             </div>
             <div className="oc-content">{datasource.title}</div>
-            {datasource.relationship && datasource.relationship.charAt(0) === "1" && (
+            {datasource.relationship.charAt(0) === "1" && (
               <i
                 className={`oc-edge verticalEdge topEdge oci ${
                   topEdgeExpanded === undefined
@@ -218,7 +221,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
                 onClick={topEdgeClickHandler}
               />
             )}
-            {datasource.relationship && datasource.relationship.charAt(1) === "1" && (
+            {datasource.relationship.charAt(1) === "1" && (
               <>
                 <i
                   className={`oc-edge horizontalEdge rightEdge oci ${
@@ -242,7 +245,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
                 />
               </>
             )}
-            {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
+            {datasource.relationship.charAt(2) === "1" && (
               <i
                 className={`oc-edge verticalEdge bottomEdge oci ${
                   bottomEdgeExpanded === undefined
@@ -256,7 +259,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
             )}
           </div>
         )}
-      {datasource.children && (
+      {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>
           {datasource.children.map(node => (
             <ChartNode

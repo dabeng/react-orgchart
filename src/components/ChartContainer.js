@@ -43,8 +43,6 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
   const [exporting, setExporting] = useState(false);
   const [dataURL, setDataURL] = useState("");
   const [download, setDownload] = useState("");
-  const [ds, setDS] = useState(datasource);
-  const dsDigger = new JSONDigger(ds, "id", "children");
 
   const attachRel = (data, flags) => {
     data.relationship =
@@ -55,7 +53,10 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
       });
     }
     return data;
-  }
+  };
+
+  const [ds, setDS] = useState(attachRel(datasource, "00"));
+  const dsDigger = new JSONDigger(ds, "id", "children");
 
   const panEndHandler = () => {
     setPanning(false);
@@ -199,7 +200,7 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
   const changeHierarchy = async (draggedItemData, dropTargetId) => {
     await dsDigger.removeNode(draggedItemData.id);
     await dsDigger.addChildren(dropTargetId, draggedItemData);
-    setDS(dsDigger.ds);
+    setDS(attachRel(dsDigger.ds, "00"));
   };
 
   useImperativeHandle(ref, () => ({
@@ -263,7 +264,7 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
       >
         <ul>
           <ChartNode
-            datasource={attachRel(ds, '00')}
+            datasource={ds}
             nodeTemplate={nodeTemplate}
             draggable={draggable}
             changeHierarchy={changeHierarchy}
