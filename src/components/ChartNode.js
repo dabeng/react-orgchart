@@ -1,6 +1,6 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
-import { dragNodeService } from './service';
+import { dragNodeService } from "./service";
 import "./ChartNode.css";
 
 const propTypes = {
@@ -14,8 +14,12 @@ const defaultProps = {
   draggable: false
 };
 
-const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => {
-
+const ChartNode = ({
+  datasource,
+  NodeTemplate,
+  draggable,
+  changeHierarchy
+}) => {
   const node = useRef();
 
   const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(false);
@@ -29,12 +33,21 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     "oc-node",
     isChildrenCollapsed ? "isChildrenCollapsed" : "",
     allowedDrop ? "allowedDrop" : ""
-  ].filter(item => item).join(" ");
+  ]
+    .filter(item => item)
+    .join(" ");
 
   useLayoutEffect(() => {
     const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
       if (draggedInfo) {
-        setAllowedDrop(!document.querySelector("#" + draggedInfo.draggedNodeId).closest('li').querySelector("#"+node.current.id) ? true : false);
+        setAllowedDrop(
+          !document
+            .querySelector("#" + draggedInfo.draggedNodeId)
+            .closest("li")
+            .querySelector("#" + node.current.id)
+            ? true
+            : false
+        );
       } else {
         setAllowedDrop(false);
       }
@@ -45,11 +58,16 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     };
   }, []);
 
-  const addArrows = (e) => {
+  const addArrows = e => {
     const node = e.target.closest("li");
     const parent = node.parentNode.closest("li");
-    const isAncestorsCollapsed = node && parent ? parent.firstChild.classList.contains("hidden") : undefined;
-    const isSiblingsCollapsed = Array.from(node.parentNode.children).some(item => item.classList.contains("hidden"));
+    const isAncestorsCollapsed =
+      node && parent
+        ? parent.firstChild.classList.contains("hidden")
+        : undefined;
+    const isSiblingsCollapsed = Array.from(
+      node.parentNode.children
+    ).some(item => item.classList.contains("hidden"));
 
     setTopEdgeExpanded(!isAncestorsCollapsed);
     setRightEdgeExpanded(!isSiblingsCollapsed);
@@ -64,7 +82,7 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     setLeftEdgeExpanded(undefined);
   };
 
-  const toggleAncestors = (actionNode) => {
+  const toggleAncestors = actionNode => {
     let node = actionNode.parentNode.closest("li");
     if (!node) return;
     const isAncestorsCollapsed = node.firstChild.classList.contains("hidden");
@@ -80,7 +98,12 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
       if (!isSiblingsCollapsed) {
         toggleSiblings(actionNode);
       }
-      actionNode.classList.add(...("isAncestorsCollapsed" + (isSiblingsCollapsed ? "" : " isSiblingsCollapsed")).split(" "));
+      actionNode.classList.add(
+        ...(
+          "isAncestorsCollapsed" +
+          (isSiblingsCollapsed ? "" : " isSiblingsCollapsed")
+        ).split(" ")
+      );
       node.firstChild.classList.add("hidden");
       // 如果还有展开的祖先节点，那继续折叠关闭之
       if (
@@ -92,7 +115,7 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     }
   };
 
-  const topEdgeClickHandler = (e) => {
+  const topEdgeClickHandler = e => {
     setTopEdgeExpanded(!topEdgeExpanded);
     toggleAncestors(e.target.closest("li"));
   };
@@ -102,11 +125,11 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     setBottomEdgeExpanded(!bottomEdgeExpanded);
   };
 
-  const toggleSiblings = (actionNode) => {
+  const toggleSiblings = actionNode => {
     let node = actionNode.previousSibling;
-    const isSiblingsCollapsed = Array.from(actionNode.parentNode.children).some(
-      item => item.classList.contains("hidden")
-    );
+    const isSiblingsCollapsed = Array.from(
+      actionNode.parentNode.children
+    ).some(item => item.classList.contains("hidden"));
     actionNode.classList.toggle("isSiblingsCollapsed", !isSiblingsCollapsed);
     // 先处理同级的兄弟节点
     while (node) {
@@ -135,30 +158,30 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     }
   };
 
-  const hEdgeClickHandler = (e) => {
+  const hEdgeClickHandler = e => {
     setLeftEdgeExpanded(!leftEdgeExpanded);
     setRightEdgeExpanded(!rightEdgeExpanded);
     toggleSiblings(e.target.closest("li"));
   };
 
-  const filterAllowedDropNodes = (id) => {
+  const filterAllowedDropNodes = id => {
     dragNodeService.sendDragInfo(id);
   };
 
-  const dragstartHandler = (event) => {
+  const dragstartHandler = event => {
     /*event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
     // if users enable zoom or direction options
     if (this.$chart.css('transform') !== 'none') {
       this.createGhostNode(event);
     }*/
-    const copyDS = {...datasource};
+    const copyDS = { ...datasource };
     delete copyDS.relationship;
     event.dataTransfer.setData("text/plain", JSON.stringify(copyDS));
     // highlight all potential drop targets
     filterAllowedDropNodes(node.current.id);
   };
 
-  const dragoverHandler = (event) => {
+  const dragoverHandler = event => {
     // prevent default to allow drop
     event.preventDefault();
   };
@@ -168,40 +191,34 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
     dragNodeService.clearDragInfo();
   };
 
-  const dropHandler = (event) => {
+  const dropHandler = event => {
     if (!event.currentTarget.classList.contains("allowedDrop")) {
       return;
     }
-    changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
+    changeHierarchy(
+      JSON.parse(event.dataTransfer.getData("text/plain")),
+      event.currentTarget.id
+    );
   };
 
   return (
     <li>
-      {NodeTemplate ? (
-        <div
-          ref={node}
-          id={datasource.id}
-          className="oc-node"
-          draggable={draggable ? "true" : undefined}
-          onDragStart={dragstartHandler}
-          onDragOver={dragoverHandler}
-          onDragEnd={dragendHandler}
-        >
-          <NodeTemplate nodeData={datasource}/>
-        </div>
-      ) : (
-          <div
-            ref={node}
-            id={datasource.id}
-            className={nodeClass}
-            draggable={draggable ? "true" : undefined}
-            onDragStart={dragstartHandler}
-            onDragOver={dragoverHandler}
-            onDragEnd={dragendHandler}
-            onDrop={dropHandler}
-            onMouseEnter={addArrows}
-            onMouseLeave={removeArrows}
-          >
+      <div
+        ref={node}
+        id={datasource.id}
+        className={nodeClass}
+        draggable={draggable ? "true" : undefined}
+        onDragStart={dragstartHandler}
+        onDragOver={dragoverHandler}
+        onDragEnd={dragendHandler}
+        onDrop={dropHandler}
+        onMouseEnter={addArrows}
+        onMouseLeave={removeArrows}
+      >
+        {NodeTemplate ? (
+          <NodeTemplate nodeData={datasource} />
+        ) : (
+          <>
             <div className="oc-heading">
               {datasource.relationship.charAt(2) === "1" && (
                 <i className="oci oci-leader oc-symbol" />
@@ -209,56 +226,57 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
               {datasource.name}
             </div>
             <div className="oc-content">{datasource.title}</div>
-            {datasource.relationship.charAt(0) === "1" && (
-              <i
-                className={`oc-edge verticalEdge topEdge oci ${
-                  topEdgeExpanded === undefined
-                    ? ""
-                    : topEdgeExpanded
-                      ? "oci-chevron-down"
-                      : "oci-chevron-up"
-                  }`}
-                onClick={topEdgeClickHandler}
-              />
-            )}
-            {datasource.relationship.charAt(1) === "1" && (
-              <>
-                <i
-                  className={`oc-edge horizontalEdge rightEdge oci ${
-                    rightEdgeExpanded === undefined
-                      ? ""
-                      : rightEdgeExpanded
-                        ? "oci-chevron-left"
-                        : "oci-chevron-right"
-                    }`}
-                  onClick={hEdgeClickHandler}
-                />
-                <i
-                  className={`oc-edge horizontalEdge leftEdge oci ${
-                    leftEdgeExpanded === undefined
-                      ? ""
-                      : leftEdgeExpanded
-                        ? "oci-chevron-right"
-                        : "oci-chevron-left"
-                    }`}
-                  onClick={hEdgeClickHandler}
-                />
-              </>
-            )}
-            {datasource.relationship.charAt(2) === "1" && (
-              <i
-                className={`oc-edge verticalEdge bottomEdge oci ${
-                  bottomEdgeExpanded === undefined
-                    ? ""
-                    : bottomEdgeExpanded
-                      ? "oci-chevron-up"
-                      : "oci-chevron-down"
-                  }`}
-                onClick={bottomEdgeClickHandler}
-              />
-            )}
-          </div>
+          </>
         )}
+        {datasource.relationship.charAt(0) === "1" && (
+          <i
+            className={`oc-edge verticalEdge topEdge oci ${
+              topEdgeExpanded === undefined
+                ? ""
+                : topEdgeExpanded
+                ? "oci-chevron-down"
+                : "oci-chevron-up"
+            }`}
+            onClick={topEdgeClickHandler}
+          />
+        )}
+        {datasource.relationship.charAt(1) === "1" && (
+          <>
+            <i
+              className={`oc-edge horizontalEdge rightEdge oci ${
+                rightEdgeExpanded === undefined
+                  ? ""
+                  : rightEdgeExpanded
+                  ? "oci-chevron-left"
+                  : "oci-chevron-right"
+              }`}
+              onClick={hEdgeClickHandler}
+            />
+            <i
+              className={`oc-edge horizontalEdge leftEdge oci ${
+                leftEdgeExpanded === undefined
+                  ? ""
+                  : leftEdgeExpanded
+                  ? "oci-chevron-right"
+                  : "oci-chevron-left"
+              }`}
+              onClick={hEdgeClickHandler}
+            />
+          </>
+        )}
+        {datasource.relationship.charAt(2) === "1" && (
+          <i
+            className={`oc-edge verticalEdge bottomEdge oci ${
+              bottomEdgeExpanded === undefined
+                ? ""
+                : bottomEdgeExpanded
+                ? "oci-chevron-up"
+                : "oci-chevron-down"
+            }`}
+            onClick={bottomEdgeClickHandler}
+          />
+        )}
+      </div>
       {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>
           {datasource.children.map(node => (
@@ -275,8 +293,7 @@ const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => 
       )}
     </li>
   );
-
-}
+};
 
 ChartNode.propTypes = propTypes;
 ChartNode.defaultProps = defaultProps;
