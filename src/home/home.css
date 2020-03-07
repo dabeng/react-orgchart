@@ -1,0 +1,17 @@
+.home-wrapper {
+  text-align: center;
+  height: calc(100% - 2.25rem);
+  background-color: #000;
+  box-sizing: border-box;
+}
+
+.repo-logo {
+  display: inline-block;
+  margin-top: 180px;
+}
+
+.author-logo {
+  float: right;
+  margin-top: 2rem;
+  margin-right: 2rem;
+}

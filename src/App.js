@@ -1,58 +1,35 @@
-import React, { useState, useRef } from 'react';
-import OrganizationChart from "./components/ChartContainer";
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
+import Home from "./home/home";
+import DefaultChart from "./default-chart/default-chart";
+import PanZoomChart from "./pan-zoom-chart/pan-zoom-chart";
+import CustomNodeChart from "./custom-node-chart/custom-node-chart";
+import ExportChart from "./export-chart/export-chart";
+import DragDropChart from "./drag-drop-chart/drag-drop-chart";
+import "./App.css";
 
 const App = () => {
-  const orgchart = useRef();
-  const [ds, setDs] = useState(
-    {
-      id: "n1",
-      name: "Lao Lao",
-      title: "general manager",
-      children: [
-        { id: "n2", name: "Bo Miao", title: "department manager" },
-        {
-          id: "n3",
-          name: "Su Miao",
-          title: "department manager",
-          children: [
-            { id: "n4", name: "Tie Hua", title: "senior engineer" },
-            {
-              id: "n5",
-              name: "Hei Hei",
-              title: "senior engineer",
-              children: [
-                { id: "n6", name: "Dan Dan", title: "engineer" },
-                { id: "n7", name: "Xiang Xiang", title: "engineer" }
-              ]
-            },
-            { id: "n8", name: "Pang Pang", title: "senior engineer" }
-          ]
-        },
-        { id: "n9", name: "Hong Miao", title: "department manager" },
-        {
-          id: "n10", name: "Chun Miao", title: "department manager",
-          children: [
-            { id: "n11", name: "Yue Yue", title: "senior engineer" }
-          ]
-        }
-      ]
-    }
-  );
-
-  const exportTo = () => {
-    orgchart.current.exportTo();
-  };
-
   return (
-    <>
-      <section className="toolbar">
-        <button className="btn-export" onClick={exportTo}>Export</button>
-      </section>
-      <OrganizationChart ref={orgchart} datasource={ds} draggable={true} />
-    </>
-  );
+    <Router>
+      <div className="wrapper">
+        <nav>
+          <NavLink to="/" exact activeClassName="selected">Home</NavLink>
+          <NavLink to="/default-chart" activeClassName="selected">Deault Chart</NavLink>
+          <NavLink to="/pan-zoom-chart" activeClassName="selected">Pan & Zoom Chart</NavLink>
+          <NavLink to="/custom-node-chart" activeClassName="selected">Custom Node Chart</NavLink>
+          <NavLink to="/export-chart" activeClassName="selected">Export Chart</NavLink>
+          <NavLink to="/drag-drop-chart" activeClassName="selected">Drap & Drop Chart</NavLink>
+        </nav>
 
+        <Route exact path="/" component={Home} />
+        <Route path="/default-chart" component={DefaultChart} />
+        <Route path="/pan-zoom-chart" component={PanZoomChart} />
+        <Route path="/custom-node-chart" component={CustomNodeChart} />
+        <Route path="/export-chart" component={ExportChart} />
+        <Route path="/drag-drop-chart" component={DragDropChart} />
+      </div>
+    </Router>
+  );
 };
 
 export default App;

@@ -14,7 +14,7 @@ const propTypes = {
   zoominLimit: PropTypes.number,
   containerClass: PropTypes.string,
   chartClass: PropTypes.string,
-  nodeTemplate: PropTypes.elementType,
+  NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool
 };
 
@@ -28,7 +28,7 @@ const defaultProps = {
   draggable: false
 };
 
-const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoominLimit, containerClass, chartClass, nodeTemplate, draggable }, ref) => {
+const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoominLimit, containerClass, chartClass, NodeTemplate, draggable }, ref) => {
 
 
   const container = useRef();
@@ -265,7 +265,7 @@ const ChartContainer = forwardRef(({ datasource, pan, zoom, zoomoutLimit, zoomin
         <ul>
           <ChartNode
             datasource={ds}
-            nodeTemplate={nodeTemplate}
+            NodeTemplate={NodeTemplate}
             draggable={draggable}
             changeHierarchy={changeHierarchy}
           />

@@ -5,7 +5,7 @@ import "./ChartNode.css";
 
 const propTypes = {
   datasource: PropTypes.object,
-  nodeTemplate: PropTypes.elementType,
+  NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
   changeHierarchy: PropTypes.func
 };
@@ -14,7 +14,7 @@ const defaultProps = {
   draggable: false
 };
 
-const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => {
+const ChartNode = ({ datasource, NodeTemplate, draggable, changeHierarchy }) => {
 
   const node = useRef();
 
@@ -177,7 +177,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
 
   return (
     <li>
-      {nodeTemplate ? (
+      {NodeTemplate ? (
         <div
           ref={node}
           id={datasource.id}
@@ -187,7 +187,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
           onDragOver={dragoverHandler}
           onDragEnd={dragendHandler}
         >
-          <this.props.nodeTemplate nodeData={datasource} />
+          <NodeTemplate nodeData={datasource}/>
         </div>
       ) : (
           <div
@@ -264,7 +264,7 @@ const ChartNode = ({ datasource, nodeTemplate, draggable, changeHierarchy }) => 
           {datasource.children.map(node => (
             <ChartNode
               datasource={node}
-              nodeTemplate={nodeTemplate}
+              NodeTemplate={NodeTemplate}
               id={node.id}
               key={node.id}
               draggable={draggable}
