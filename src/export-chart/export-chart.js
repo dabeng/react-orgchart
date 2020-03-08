@@ -82,14 +82,13 @@ const ExportChart = () => {
         />
         <label htmlFor="rd-pdf">pdf</label>
         <button
-          className="btn-export"
           onClick={exportTo}
           style={{ marginLeft: "2rem" }}
         >
           Export
         </button>
       </section>
-      <OrganizationChart ref={orgchart} datasource={ds} draggable={true} />
+      <OrganizationChart ref={orgchart} datasource={ds} />
     </>
   );
 };

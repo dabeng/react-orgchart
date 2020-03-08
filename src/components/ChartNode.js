@@ -1,13 +1,14 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
-import { dragNodeService } from "./service";
+import { dragNodeService, selectNodeService } from "./service";
 import "./ChartNode.css";
 
 const propTypes = {
   datasource: PropTypes.object,
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
-  changeHierarchy: PropTypes.func
+  changeHierarchy: PropTypes.func,
+  onClickNode: PropTypes.func
 };
 
 const defaultProps = {
@@ -18,7 +19,8 @@ const ChartNode = ({
   datasource,
   NodeTemplate,
   draggable,
-  changeHierarchy
+  changeHierarchy,
+  onClickNode
 }) => {
   const node = useRef();
 
@@ -28,11 +30,13 @@ const ChartNode = ({
   const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState();
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
   const [allowedDrop, setAllowedDrop] = useState(false);
+  const [selected, setSelected] = useState(false);
 
   const nodeClass = [
     "oc-node",
     isChildrenCollapsed ? "isChildrenCollapsed" : "",
-    allowedDrop ? "allowedDrop" : ""
+    allowedDrop ? "allowedDrop" : "",
+    selected ? "selected" : ""
   ]
     .filter(item => item)
     .join(" ");
@@ -53,8 +57,17 @@ const ChartNode = ({
       }
     });
 
+    const subs2 = selectNodeService.getSelectedNodeInfo().subscribe(selectedNodeInfo => {
+      if (selectedNodeInfo) {
+        setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
+      } else {
+        setSelected(false);
+      }
+    });
+
     return () => {
       subs1.unsubscribe();
+      subs2.unsubscribe();
     };
   }, []);
 
@@ -168,6 +181,12 @@ const ChartNode = ({
     dragNodeService.sendDragInfo(id);
   };
 
+  const clickNodeHandler = event => {
+    onClickNode(datasource);
+    setSelected(true);
+    selectNodeService.sendSelectedNodeInfo(datasource.id);
+  };
+
   const dragstartHandler = event => {
     /*event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
     // if users enable zoom or direction options
@@ -208,6 +227,7 @@ const ChartNode = ({
         id={datasource.id}
         className={nodeClass}
         draggable={draggable ? "true" : undefined}
+        onClick={clickNodeHandler}
         onDragStart={dragstartHandler}
         onDragOver={dragoverHandler}
         onDragEnd={dragendHandler}
@@ -287,6 +307,7 @@ const ChartNode = ({
               key={node.id}
               draggable={draggable}
               changeHierarchy={changeHierarchy}
+              onClickNode={onClickNode}
             />
           ))}
         </ul>

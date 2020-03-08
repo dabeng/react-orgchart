@@ -1,10 +1,21 @@
-.toolbar {
+.edit-chart-wrapper .toolbar {
   padding: 0.5rem;
   margin: 10px;
   border: 1px solid #aaa;
 }
 
-button {
+.edit-chart-wrapper .toolbar ul {
+  display: inline-block;
+  vertical-align: text-top;
+  margin: 0;
+}
+
+.edit-chart-wrapper button:first-of-type {
+  margin-left: 2rem;
+}
+
+.edit-chart-wrapper button {
+  margin-right: 0.5rem;
   box-sizing: border-box;
   padding: 6px 12px;
   font-size: 1rem;
@@ -19,15 +30,15 @@ button {
   border: 2px solid #5cb85c;
 }
 
-button[disabled] {
+.edit-chart-wrapper button[disabled] {
   cursor: not-allowed;
   box-shadow: none;
   opacity: 0.3;
 }
 
-button:hover,
-button:focus,
-button:active {
+.edit-chart-wrapper button:hover,
+.edit-chart-wrapper button:focus,
+.edit-chart-wrapper button:active {
   color: #5cb85c;
   background-color: #fff;
 }
