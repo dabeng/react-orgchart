@@ -1,10 +1,11 @@
 import React, { useRef, useState } from "react";
+import JSONDigger from "json-digger";
 import OrganizationChart from "../components/ChartContainer";
 import "./edit-chart.css";
 
 const EditChart = () => {
   const orgchart = useRef();
-  const ds = {
+  const datasource = {
     id: "n1",
     name: "Lao Lao",
     title: "general manager",
@@ -37,23 +38,37 @@ const EditChart = () => {
       }
     ]
   };
+  const [ds, setDS] = useState(datasource);
+  const dsDigger = new JSONDigger(ds, "id", "children");
 
-  const [selectedNode, setSelectedNode] = useState("");
+  const [selectedNode, setSelectedNode] = useState({ name: "" });
   const [rel, setRel] = useState("child");
+  const [newNodes, setNewNodes] = useState([{ name: "", title: "" }]);
 
   const readSelectedNode = nodeData => {
-    setSelectedNode(nodeData.name);
+    setSelectedNode(nodeData);
   };
+
+  const clearSelectedNode = () => {
+    setSelectedNode({ name: "" });
+  };
+
   const onRelChange = event => {
     setRel(event.target.value);
   };
 
-  const add = event => {
-    
+  const add = async () => {
+    await dsDigger.addChildren(selectedNode.id, {
+      id: "nnn",
+      name: "111",
+      title: "222"
+    });
+    setDS({ ...dsDigger.ds });
   };
 
-  const remove = event => {
-    
+  const remove = async () => {
+    await dsDigger.removeNode(selectedNode.id);
+    setDS({ ...dsDigger.ds });
   };
 
   return (
@@ -61,10 +76,10 @@ const EditChart = () => {
       <section className="toolbar">
         <label htmlFor="txt-selected-node">Selected Node:</label>
         <input
-        readOnly
+          readOnly
           id="txt-selected-node"
           type="text"
-          value={selectedNode}
+          value={selectedNode.name}
           style={{ fontSize: "1rem", marginRight: "2rem" }}
         />
         <span>Relationship: </span>
@@ -96,15 +111,23 @@ const EditChart = () => {
         <label htmlFor="rd-sibling">sibling</label>
         <span style={{ marginLeft: "2rem" }}>New Nodes: </span>
         <ul>
+          {newNodes.map(node => (
           <li>
-            <input type="text"/>
+            <input type="text" value={node.name} placeholder="name" />
+            <input type="text" value={node.title} placeholder="title" />
             <button>+</button>
           </li>
+          ))}
         </ul>
         <button onClick={add}>Add</button>
         <button onClick={remove}>Remove</button>
       </section>
-      <OrganizationChart ref={orgchart} datasource={ds} onClickNode={readSelectedNode} />
+      <OrganizationChart
+        ref={orgchart}
+        datasource={ds}
+        onClickNode={readSelectedNode}
+        onClickChart={clearSelectedNode}
+      />
     </div>
   );
 };

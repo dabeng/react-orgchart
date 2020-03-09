@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle
 } from "react";
 import PropTypes from "prop-types";
+import { selectNodeService } from "./service";
 import JSONDigger from "json-digger";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -21,7 +22,8 @@ const propTypes = {
   chartClass: PropTypes.string,
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
-  onClickNode: PropTypes.func
+  onClickNode: PropTypes.func,
+  onClickChart: PropTypes.func
 };
 
 const defaultProps = {
@@ -46,7 +48,8 @@ const ChartContainer = forwardRef(
       chartClass,
       NodeTemplate,
       draggable,
-      onClickNode
+      onClickNode,
+      onClickChart
     },
     ref
   ) => {
@@ -76,6 +79,15 @@ const ChartContainer = forwardRef(
 
     const [ds, setDS] = useState(attachRel(datasource, "00"));
     const dsDigger = new JSONDigger(ds, "id", "children");
+
+    const clickChartHandler = (event) => {
+      if(!event.target.closest('.oc-node')) {
+        if (onClickChart) {
+          onClickChart();
+        }
+        selectNodeService.clearSelectedNodeInfo();
+      }
+    };
 
     const panEndHandler = () => {
       setPanning(false);
@@ -269,6 +281,7 @@ const ChartContainer = forwardRef(
           ref={chart}
           className={"orgchart " + chartClass}
           style={{ transform: transform, cursor: cursor }}
+          onClick={clickChartHandler}
           onMouseDown={pan ? panStartHandler : undefined}
           onMouseMove={pan && panning ? panHandler : undefined}
         >

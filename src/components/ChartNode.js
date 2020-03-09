@@ -182,7 +182,9 @@ const ChartNode = ({
   };
 
   const clickNodeHandler = event => {
-    onClickNode(datasource);
+    if (onClickNode) {
+      onClickNode(datasource);
+    }
     setSelected(true);
     selectNodeService.sendSelectedNodeInfo(datasource.id);
   };
