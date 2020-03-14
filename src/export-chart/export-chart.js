@@ -48,6 +48,7 @@ const ExportChart = () => {
   const onNameChange = event => {
     setFilename(event.target.value);
   };
+
   const onExtensionChange = event => {
     setFileextension(event.target.value);
   };

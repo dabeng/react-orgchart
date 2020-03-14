@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
   useRef,
   forwardRef,
   useImperativeHandle
@@ -22,6 +23,7 @@ const propTypes = {
   chartClass: PropTypes.string,
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
+  collapsible: PropTypes.bool,
   onClickNode: PropTypes.func,
   onClickChart: PropTypes.func
 };
@@ -33,7 +35,8 @@ const defaultProps = {
   zoominLimit: 7,
   containerClass: "",
   chartClass: "",
-  draggable: false
+  draggable: false,
+  collapsible: true
 };
 
 const ChartContainer = forwardRef(
@@ -48,6 +51,7 @@ const ChartContainer = forwardRef(
       chartClass,
       NodeTemplate,
       draggable,
+      collapsible,
       onClickNode,
       onClickChart
     },
@@ -57,6 +61,7 @@ const ChartContainer = forwardRef(
     const chart = useRef();
     const downloadButton = useRef();
 
+  
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
     const [transform, setTransform] = useState("");
@@ -65,6 +70,9 @@ const ChartContainer = forwardRef(
     const [exporting, setExporting] = useState(false);
     const [dataURL, setDataURL] = useState("");
     const [download, setDownload] = useState("");
+
+
+
 
     const attachRel = (data, flags) => {
       data.relationship =
@@ -78,7 +86,20 @@ const ChartContainer = forwardRef(
     };
 
     const [ds, setDS] = useState(attachRel(datasource, "00"));
-    const dsDigger = new JSONDigger(ds, "id", "children");
+    useEffect(
+      () => {
+        setDS(attachRel(datasource, "00"));
+      },
+      [datasource],
+    );
+    // setDS(datasource);
+    // const [ds, setDS] = useState(() => {
+    //   return attachRel(datasource, "00");
+    // });
+    
+    
+    const dsDigger = new JSONDigger(datasource, "id", "children");
+    
 
     const clickChartHandler = (event) => {
       if(!event.target.closest('.oc-node')) {
@@ -231,7 +252,8 @@ const ChartContainer = forwardRef(
     const changeHierarchy = async (draggedItemData, dropTargetId) => {
       await dsDigger.removeNode(draggedItemData.id);
       await dsDigger.addChildren(dropTargetId, draggedItemData);
-      setDS(attachRel(dsDigger.ds, "00"));
+      // setDS(attachRel(dsDigger.ds, "00"));
+      setDS({...dsDigger.ds});
     };
 
     useImperativeHandle(ref, () => ({
@@ -290,6 +312,7 @@ const ChartContainer = forwardRef(
               datasource={ds}
               NodeTemplate={NodeTemplate}
               draggable={draggable}
+              collapsible={collapsible}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
             />

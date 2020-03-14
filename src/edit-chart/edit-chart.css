@@ -2,22 +2,32 @@
   padding: 0.5rem;
   margin: 10px;
   border: 1px solid #aaa;
+  display: flex;
+}
+
+.edit-chart-wrapper .toolbar h4 {
+  margin: 0;
+}
+
+.edit-chart-wrapper .toolbar input {
+  font-size: 1rem;
+}
+
+.edit-chart-wrapper .toolbar > div {
+  display: inline-block;
+  flex: 1 1 0;
 }
 
 .edit-chart-wrapper .toolbar ul {
   display: inline-block;
   vertical-align: text-top;
   margin: 0;
-}
-
-.edit-chart-wrapper button:first-of-type {
-  margin-left: 2rem;
+  padding: 0;
+  list-style: none;
 }
 
 .edit-chart-wrapper button {
-  margin-right: 0.5rem;
   box-sizing: border-box;
-  padding: 6px 12px;
   font-size: 1rem;
   text-align: center;
   white-space: nowrap;
@@ -28,6 +38,18 @@
   color: #fff;
   background-color: #5cb85c;
   border: 2px solid #5cb85c;
+}
+
+.edit-chart-wrapper .toolbar .action-buttons button {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.edit-chart-wrapper .toolbar .new-nodes button {
+  height: 24px;
+  width: 24px;
+  padding: 0;
+  vertical-align: top;
 }
 
 .edit-chart-wrapper button[disabled] {

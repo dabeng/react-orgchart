@@ -7,18 +7,21 @@ const propTypes = {
   datasource: PropTypes.object,
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
+  collapsible: PropTypes.bool,
   changeHierarchy: PropTypes.func,
   onClickNode: PropTypes.func
 };
 
 const defaultProps = {
-  draggable: false
+  draggable: false,
+  collapsible: true
 };
 
 const ChartNode = ({
   datasource,
   NodeTemplate,
   draggable,
+  collapsible,
   changeHierarchy,
   onClickNode
 }) => {
@@ -59,7 +62,9 @@ const ChartNode = ({
 
     const subs2 = selectNodeService.getSelectedNodeInfo().subscribe(selectedNodeInfo => {
       if (selectedNodeInfo) {
-        setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
+        // TODO: node.current.id should be replaed with datasource.id, but now it doesn't work.
+        // Here, if we use datasource.id, "select node" effect will not work after appending root node.
+        setSelected(selectedNodeInfo.selectedNodeId === node.current.id);
       } else {
         setSelected(false);
       }
@@ -129,11 +134,13 @@ const ChartNode = ({
   };
 
   const topEdgeClickHandler = e => {
+    // e.stopPropagation();
     setTopEdgeExpanded(!topEdgeExpanded);
     toggleAncestors(e.target.closest("li"));
   };
 
-  const bottomEdgeClickHandler = () => {
+  const bottomEdgeClickHandler = e => {
+    // e.stopPropagation();
     setIsChildrenCollapsed(!isChildrenCollapsed);
     setBottomEdgeExpanded(!bottomEdgeExpanded);
   };
@@ -172,6 +179,7 @@ const ChartNode = ({
   };
 
   const hEdgeClickHandler = e => {
+    // e.stopPropagation();
     setLeftEdgeExpanded(!leftEdgeExpanded);
     setRightEdgeExpanded(!rightEdgeExpanded);
     toggleSiblings(e.target.closest("li"));
@@ -185,7 +193,7 @@ const ChartNode = ({
     if (onClickNode) {
       onClickNode(datasource);
     }
-    setSelected(true);
+    // setSelected(true);
     selectNodeService.sendSelectedNodeInfo(datasource.id);
   };
 
@@ -216,6 +224,7 @@ const ChartNode = ({
     if (!event.currentTarget.classList.contains("allowedDrop")) {
       return;
     }
+    dragNodeService.clearDragInfo();
     changeHierarchy(
       JSON.parse(event.dataTransfer.getData("text/plain")),
       event.currentTarget.id
@@ -242,7 +251,7 @@ const ChartNode = ({
         ) : (
           <>
             <div className="oc-heading">
-              {datasource.relationship.charAt(2) === "1" && (
+              {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
                 <i className="oci oci-leader oc-symbol" />
               )}
               {datasource.name}
@@ -250,7 +259,7 @@ const ChartNode = ({
             <div className="oc-content">{datasource.title}</div>
           </>
         )}
-        {datasource.relationship.charAt(0) === "1" && (
+        {collapsible && datasource.relationship && datasource.relationship.charAt(0) === "1" && (
           <i
             className={`oc-edge verticalEdge topEdge oci ${
               topEdgeExpanded === undefined
@@ -262,7 +271,7 @@ const ChartNode = ({
             onClick={topEdgeClickHandler}
           />
         )}
-        {datasource.relationship.charAt(1) === "1" && (
+        {collapsible && datasource.relationship && datasource.relationship.charAt(1) === "1" && (
           <>
             <i
               className={`oc-edge horizontalEdge rightEdge oci ${
@@ -286,7 +295,7 @@ const ChartNode = ({
             />
           </>
         )}
-        {datasource.relationship.charAt(2) === "1" && (
+        {collapsible && datasource.relationship && datasource.relationship.charAt(2) === "1" && (
           <i
             className={`oc-edge verticalEdge bottomEdge oci ${
               bottomEdgeExpanded === undefined
@@ -308,6 +317,7 @@ const ChartNode = ({
               id={node.id}
               key={node.id}
               draggable={draggable}
+              collapsible={collapsible}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
             />

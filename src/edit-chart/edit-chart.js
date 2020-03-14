@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import JSONDigger from "json-digger";
+import { v4 as uuidv4 } from 'uuid';
 import OrganizationChart from "../components/ChartContainer";
 import "./edit-chart.css";
 
@@ -40,91 +41,119 @@ const EditChart = () => {
   };
   const [ds, setDS] = useState(datasource);
   const dsDigger = new JSONDigger(ds, "id", "children");
+  // const [ds, setDS] = useState({...dsDigger.ds});
+  // useEffect(
+  //   () => {
+  //     setDS(dsDigger.ds);
+  //   },
+  //   [dsDigger.ds],
+  // );
 
-  const [selectedNode, setSelectedNode] = useState({ name: "" });
-  const [rel, setRel] = useState("child");
+  const [selectedNodes, setSelectedNodes] = useState([]);
   const [newNodes, setNewNodes] = useState([{ name: "", title: "" }]);
+  const [isEditMode, setIsEditMode] = useState(true);
 
   const readSelectedNode = nodeData => {
-    setSelectedNode(nodeData);
+    setSelectedNodes([nodeData]);
   };
 
   const clearSelectedNode = () => {
-    setSelectedNode({ name: "" });
+    setSelectedNodes([]);
   };
 
-  const onRelChange = event => {
-    setRel(event.target.value);
+  const onNameChange = (e, index) => {
+    // const copy = [...newNodes];
+    // copy[index].name = e.target.value;
+    newNodes[index].name = e.target.value;
+    setNewNodes([...newNodes]);
   };
 
-  const add = async () => {
-    await dsDigger.addChildren(selectedNode.id, {
-      id: "nnn",
-      name: "111",
-      title: "222"
-    });
+  const onTitleChange = (e, index) => {
+    // const copy = [...newNodes];
+    // copy[index].title = e.target.value;
+    newNodes[index].title = e.target.value;
+    setNewNodes([...newNodes]);
+  };
+
+  const getNewNodes = () => {
+    const nodes = [];
+    for (const node of newNodes) {
+      nodes.push({...node,id: uuidv4()});
+    }
+    return nodes;
+  };
+
+  const addChildNodes = async () => {
+    await dsDigger.addChildren(selectedNodes[0].id, getNewNodes());
+    setDS({ ...dsDigger.ds });
+  };
+
+  const addSiblingNodes = async () => {
+    await dsDigger.addSiblings(selectedNodes[0].id, getNewNodes());
+    setDS({ ...dsDigger.ds });
+  };
+
+  const addRootNode = () => {
+    // dsDigger.addRoot(getNewNodes()[0]);
+    // setDS({ ...dsDigger.ds });
+    dsDigger.addRoot(getNewNodes()[0]);
     setDS({ ...dsDigger.ds });
   };
 
   const remove = async () => {
-    await dsDigger.removeNode(selectedNode.id);
+    await dsDigger.removeNode(selectedNodes[0].id);
     setDS({ ...dsDigger.ds });
+  };
+
+  const onModeChange = e => {
+    setIsEditMode(e.target.checked);
   };
 
   return (
     <div className="edit-chart-wrapper">
       <section className="toolbar">
-        <label htmlFor="txt-selected-node">Selected Node:</label>
-        <input
-          readOnly
-          id="txt-selected-node"
-          type="text"
-          value={selectedNode.name}
-          style={{ fontSize: "1rem", marginRight: "2rem" }}
-        />
-        <span>Relationship: </span>
-        <input
-          id="rd-parent"
-          type="radio"
-          value="parent"
-          checked={rel === "parent"}
-          onChange={onRelChange}
-        />
-        <label htmlFor="rd-parent">parent</label>
-        <input
-          style={{ marginLeft: "1rem" }}
-          id="rd-child"
-          type="radio"
-          value="child"
-          checked={rel === "child"}
-          onChange={onRelChange}
-        />
-        <label htmlFor="rd-child">child</label>
-        <input
-          style={{ marginLeft: "1rem" }}
-          id="rd-sibling"
-          type="radio"
-          value="sibling"
-          checked={rel === "sibling"}
-          onChange={onRelChange}
-        />
-        <label htmlFor="rd-sibling">sibling</label>
-        <span style={{ marginLeft: "2rem" }}>New Nodes: </span>
+        {/* <div>{JSON.stringify(dsDigger.ds, null, 2)}</div> */}
+        <div className="selected-nodes">
+        <h4>Selected Node:</h4>
         <ul>
-          {newNodes.map(node => (
-          <li>
-            <input type="text" value={node.name} placeholder="name" />
-            <input type="text" value={node.title} placeholder="title" />
-            <button>+</button>
-          </li>
+          {selectedNodes && selectedNodes.map(node => (
+            <li key={node.id}>
+              {node.name} - {node.title}
+            </li>
           ))}
         </ul>
-        <button onClick={add}>Add</button>
-        <button onClick={remove}>Remove</button>
+        </div>
+        <div className="new-nodes">
+        <h4>New Nodes:</h4>
+        <ul>
+          {newNodes && newNodes.map((node, index) => (
+            <li key={index}>
+              <input type="text" placeholder="name" value={node.name} onChange={(e) => onNameChange(e, index)} />
+              <input type="text" placeholder="title" value={node.title} onChange={(e) => onTitleChange(e, index)} />
+              <button>+</button>
+            </li>
+          ))}
+        </ul>
+        </div>
+        <div className="action-buttons">
+        <button onClick={addChildNodes}>Add Child Nodes</button>
+        <button onClick={addSiblingNodes}>Add Sibling Nodes</button>
+        <button onClick={addRootNode}>Add Root Node</button>
+        <button onClick={remove}>Remove Nodes</button>
+        <input
+          style={{ marginLeft: "1rem" }}
+          id="cb-mode"
+          type="checkbox"
+          checked={isEditMode}
+          onChange={onModeChange}
+        />
+        <label htmlFor="cb-mode">Edit Mode</label>
+        </div>
       </section>
       <OrganizationChart
         ref={orgchart}
         datasource={ds}
+        collapsible={!isEditMode}
         onClickNode={readSelectedNode}
         onClickChart={clearSelectedNode}
       />
