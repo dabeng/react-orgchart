@@ -49,16 +49,22 @@ const EditChart = () => {
   //   [dsDigger.ds],
   // );
 
-  const [selectedNodes, setSelectedNodes] = useState([]);
+  const [selectedNodes, setSelectedNodes] = useState(new Set());
   const [newNodes, setNewNodes] = useState([{ name: "", title: "" }]);
   const [isEditMode, setIsEditMode] = useState(true);
+  const [isMultipleSelect, setIsMultipleSelect] = useState(false);
 
   const readSelectedNode = nodeData => {
-    setSelectedNodes([nodeData]);
+    // setSelectedNodes(selectedNodes.add(nodeData));
+    if (isMultipleSelect) {
+      setSelectedNodes(prev => new Set(prev.add(nodeData)));
+    } else {
+      setSelectedNodes(new Set([nodeData]));
+    }
   };
 
   const clearSelectedNode = () => {
-    setSelectedNodes([]);
+    setSelectedNodes(new Set());
   };
 
   const onNameChange = (e, index) => {
@@ -84,12 +90,12 @@ const EditChart = () => {
   };
 
   const addChildNodes = async () => {
-    await dsDigger.addChildren(selectedNodes[0].id, getNewNodes());
+    await dsDigger.addChildren([...selectedNodes][0].id, getNewNodes());
     setDS({ ...dsDigger.ds });
   };
 
   const addSiblingNodes = async () => {
-    await dsDigger.addSiblings(selectedNodes[0].id, getNewNodes());
+    await dsDigger.addSiblings([...selectedNodes][0].id, getNewNodes());
     setDS({ ...dsDigger.ds });
   };
 
@@ -101,22 +107,40 @@ const EditChart = () => {
   };
 
   const remove = async () => {
-    await dsDigger.removeNode(selectedNodes[0].id);
+    // await dsDigger.removeNode(selectedNodes[0].id);
+    await dsDigger.removeNodes([...selectedNodes].map(node => node.id));
     setDS({ ...dsDigger.ds });
+    setSelectedNodes(new Set());
+  };
+
+  const onMultipleSelectChange = e => {
+    setIsMultipleSelect(e.target.checked);
   };
 
   const onModeChange = e => {
     setIsEditMode(e.target.checked);
+    if (e.target.checked) {
+      orgchart.current.expandAllNodes();
+    }
   };
 
   return (
     <div className="edit-chart-wrapper">
       <section className="toolbar">
-        {/* <div>{JSON.stringify(dsDigger.ds, null, 2)}</div> */}
         <div className="selected-nodes">
-        <h4>Selected Node:</h4>
+        <div>
+        <h4 style={{display:"inline-block"}}>Selected Node</h4>
+        <input
+          style={{ marginLeft: "1rem" }}
+          id="cb-multiple-select"
+          type="checkbox"
+          checked={isMultipleSelect}
+          onChange={onMultipleSelectChange}
+        />
+        <label htmlFor="cb-multiple-select">Multiple Select</label>
+        </div>
         <ul>
-          {selectedNodes && selectedNodes.map(node => (
+          {Array.from(selectedNodes).map(node => (
             <li key={node.id}>
               {node.name} - {node.title}
             </li>
@@ -124,22 +148,22 @@ const EditChart = () => {
         </ul>
         </div>
         <div className="new-nodes">
-        <h4>New Nodes:</h4>
+        <h4>New Nodes</h4>
         <ul>
           {newNodes && newNodes.map((node, index) => (
             <li key={index}>
               <input type="text" placeholder="name" value={node.name} onChange={(e) => onNameChange(e, index)} />
               <input type="text" placeholder="title" value={node.title} onChange={(e) => onTitleChange(e, index)} />
-              <button>+</button>
+              <button disabled={!isEditMode}>+</button>
             </li>
           ))}
         </ul>
         </div>
         <div className="action-buttons">
-        <button onClick={addChildNodes}>Add Child Nodes</button>
-        <button onClick={addSiblingNodes}>Add Sibling Nodes</button>
-        <button onClick={addRootNode}>Add Root Node</button>
-        <button onClick={remove}>Remove Nodes</button>
+        <button disabled={!isEditMode} onClick={addChildNodes}>Add Child Nodes</button>
+        <button disabled={!isEditMode} onClick={addSiblingNodes}>Add Sibling Nodes</button>
+        <button disabled={!isEditMode} onClick={addRootNode}>Add Root Node</button>
+        <button disabled={!isEditMode} onClick={remove}>Remove Nodes</button>
         <input
           style={{ marginLeft: "1rem" }}
           id="cb-mode"
@@ -154,6 +178,7 @@ const EditChart = () => {
         ref={orgchart}
         datasource={ds}
         collapsible={!isEditMode}
+        multipleSelect={isMultipleSelect}
         onClickNode={readSelectedNode}
         onClickChart={clearSelectedNode}
       />

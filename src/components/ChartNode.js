@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { dragNodeService, selectNodeService } from "./service";
 import "./ChartNode.css";
@@ -8,13 +8,15 @@ const propTypes = {
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
   collapsible: PropTypes.bool,
+  multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
   onClickNode: PropTypes.func
 };
 
 const defaultProps = {
   draggable: false,
-  collapsible: true
+  collapsible: true,
+  multipleSelect: false
 };
 
 const ChartNode = ({
@@ -22,6 +24,7 @@ const ChartNode = ({
   NodeTemplate,
   draggable,
   collapsible,
+  multipleSelect,
   changeHierarchy,
   onClickNode
 }) => {
@@ -44,7 +47,7 @@ const ChartNode = ({
     .filter(item => item)
     .join(" ");
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
       if (draggedInfo) {
         setAllowedDrop(
@@ -62,9 +65,13 @@ const ChartNode = ({
 
     const subs2 = selectNodeService.getSelectedNodeInfo().subscribe(selectedNodeInfo => {
       if (selectedNodeInfo) {
-        // TODO: node.current.id should be replaed with datasource.id, but now it doesn't work.
-        // Here, if we use datasource.id, "select node" effect will not work after appending root node.
-        setSelected(selectedNodeInfo.selectedNodeId === node.current.id);
+        if (multipleSelect) {
+          if (selectedNodeInfo.selectedNodeId === datasource.id) {
+            setSelected(true);
+          }
+        } else {
+          setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
+        }
       } else {
         setSelected(false);
       }
@@ -74,7 +81,7 @@ const ChartNode = ({
       subs1.unsubscribe();
       subs2.unsubscribe();
     };
-  }, []);
+  }, [multipleSelect, datasource]);
 
   const addArrows = e => {
     const node = e.target.closest("li");
@@ -134,13 +141,13 @@ const ChartNode = ({
   };
 
   const topEdgeClickHandler = e => {
-    // e.stopPropagation();
+    e.stopPropagation();
     setTopEdgeExpanded(!topEdgeExpanded);
     toggleAncestors(e.target.closest("li"));
   };
 
   const bottomEdgeClickHandler = e => {
-    // e.stopPropagation();
+    e.stopPropagation();
     setIsChildrenCollapsed(!isChildrenCollapsed);
     setBottomEdgeExpanded(!bottomEdgeExpanded);
   };
@@ -179,7 +186,7 @@ const ChartNode = ({
   };
 
   const hEdgeClickHandler = e => {
-    // e.stopPropagation();
+    e.stopPropagation();
     setLeftEdgeExpanded(!leftEdgeExpanded);
     setRightEdgeExpanded(!rightEdgeExpanded);
     toggleSiblings(e.target.closest("li"));
@@ -232,7 +239,7 @@ const ChartNode = ({
   };
 
   return (
-    <li>
+    <li className="oc-hierarchy">
       <div
         ref={node}
         id={datasource.id}
@@ -318,6 +325,7 @@ const ChartNode = ({
               key={node.id}
               draggable={draggable}
               collapsible={collapsible}
+              multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
             />

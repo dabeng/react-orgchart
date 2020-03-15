@@ -24,6 +24,7 @@ const propTypes = {
   NodeTemplate: PropTypes.elementType,
   draggable: PropTypes.bool,
   collapsible: PropTypes.bool,
+  multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
   onClickChart: PropTypes.func
 };
@@ -36,7 +37,8 @@ const defaultProps = {
   containerClass: "",
   chartClass: "",
   draggable: false,
-  collapsible: true
+  collapsible: true,
+  multipleSelect: false
 };
 
 const ChartContainer = forwardRef(
@@ -52,6 +54,7 @@ const ChartContainer = forwardRef(
       NodeTemplate,
       draggable,
       collapsible,
+      multipleSelect,
       onClickNode,
       onClickChart
     },
@@ -61,7 +64,6 @@ const ChartContainer = forwardRef(
     const chart = useRef();
     const downloadButton = useRef();
 
-  
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
     const [transform, setTransform] = useState("");
@@ -70,9 +72,6 @@ const ChartContainer = forwardRef(
     const [exporting, setExporting] = useState(false);
     const [dataURL, setDataURL] = useState("");
     const [download, setDownload] = useState("");
-
-
-
 
     const attachRel = (data, flags) => {
       data.relationship =
@@ -85,10 +84,17 @@ const ChartContainer = forwardRef(
       return data;
     };
 
-    const [ds, setDS] = useState(attachRel(datasource, "00"));
+    // const [ds, setDS] = useState(attachRel(datasource, "00"));
+    // useEffect(
+    //   () => {
+    //     setDS(attachRel(datasource, "00"));
+    //   },
+    //   [datasource],
+    // );
+    const [ds, setDS] = useState(datasource);
     useEffect(
       () => {
-        setDS(attachRel(datasource, "00"));
+        setDS(datasource);
       },
       [datasource],
     );
@@ -289,6 +295,11 @@ const ChartContainer = forwardRef(
             container.current.scrollTop = originalScrollTop;
           }
         );
+      },
+      expandAllNodes: () => {
+        chart.current.querySelectorAll(".oc-node.hidden, .oc-hierarchy.hidden, .isSiblingsCollapsed, .isAncestorsCollapsed").forEach(el => {
+          el.classList.remove("hidden", "isSiblingsCollapsed", "isAncestorsCollapsed");
+        });
       }
     }));
 
@@ -309,10 +320,12 @@ const ChartContainer = forwardRef(
         >
           <ul>
             <ChartNode
-              datasource={ds}
+              // datasource={ds}
+              datasource={attachRel(ds, "00")}
               NodeTemplate={NodeTemplate}
               draggable={draggable}
               collapsible={collapsible}
+              multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
             />
