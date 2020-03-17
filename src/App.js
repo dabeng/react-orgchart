@@ -7,6 +7,7 @@ import CustomNodeChart from "./custom-node-chart/custom-node-chart";
 import ExportChart from "./export-chart/export-chart";
 import DragDropChart from "./drag-drop-chart/drag-drop-chart";
 import EditChart from "./edit-chart/edit-chart";
+import EditNode from "./edit-node/edit-node";
 import "./App.css";
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
           <NavLink to="/export-chart" activeClassName="selected">Export Chart</NavLink>
           <NavLink to="/drag-drop-chart" activeClassName="selected">Drap & Drop Chart</NavLink>
           <NavLink to="/edit-chart" activeClassName="selected">Edit Chart</NavLink>
+          <NavLink to="/edit-node" activeClassName="selected">Edit Node</NavLink>
         </nav>
 
         <Route exact path="/" component={Home} />
@@ -30,6 +32,7 @@ const App = () => {
         <Route path="/export-chart" component={ExportChart} />
         <Route path="/drag-drop-chart" component={DragDropChart} />
         <Route path="/edit-chart" component={EditChart} />
+        <Route path="/edit-node" component={EditNode} />
       </div>
     </Router>
   );

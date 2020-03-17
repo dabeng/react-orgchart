@@ -84,31 +84,15 @@ const ChartContainer = forwardRef(
       return data;
     };
 
-    // const [ds, setDS] = useState(attachRel(datasource, "00"));
-    // useEffect(
-    //   () => {
-    //     setDS(attachRel(datasource, "00"));
-    //   },
-    //   [datasource],
-    // );
     const [ds, setDS] = useState(datasource);
-    useEffect(
-      () => {
-        setDS(datasource);
-      },
-      [datasource],
-    );
-    // setDS(datasource);
-    // const [ds, setDS] = useState(() => {
-    //   return attachRel(datasource, "00");
-    // });
-    
-    
-    const dsDigger = new JSONDigger(datasource, "id", "children");
-    
+    useEffect(() => {
+      setDS(datasource);
+    }, [datasource]);
 
-    const clickChartHandler = (event) => {
-      if(!event.target.closest('.oc-node')) {
+    const dsDigger = new JSONDigger(datasource, "id", "children");
+
+    const clickChartHandler = event => {
+      if (!event.target.closest(".oc-node")) {
         if (onClickChart) {
           onClickChart();
         }
@@ -258,8 +242,7 @@ const ChartContainer = forwardRef(
     const changeHierarchy = async (draggedItemData, dropTargetId) => {
       await dsDigger.removeNode(draggedItemData.id);
       await dsDigger.addChildren(dropTargetId, draggedItemData);
-      // setDS(attachRel(dsDigger.ds, "00"));
-      setDS({...dsDigger.ds});
+      setDS({ ...dsDigger.ds });
     };
 
     useImperativeHandle(ref, () => ({
@@ -297,9 +280,17 @@ const ChartContainer = forwardRef(
         );
       },
       expandAllNodes: () => {
-        chart.current.querySelectorAll(".oc-node.hidden, .oc-hierarchy.hidden, .isSiblingsCollapsed, .isAncestorsCollapsed").forEach(el => {
-          el.classList.remove("hidden", "isSiblingsCollapsed", "isAncestorsCollapsed");
-        });
+        chart.current
+          .querySelectorAll(
+            ".oc-node.hidden, .oc-hierarchy.hidden, .isSiblingsCollapsed, .isAncestorsCollapsed"
+          )
+          .forEach(el => {
+            el.classList.remove(
+              "hidden",
+              "isSiblingsCollapsed",
+              "isAncestorsCollapsed"
+            );
+          });
       }
     }));
 
@@ -320,7 +311,6 @@ const ChartContainer = forwardRef(
         >
           <ul>
             <ChartNode
-              // datasource={ds}
               datasource={attachRel(ds, "00")}
               NodeTemplate={NodeTemplate}
               draggable={draggable}

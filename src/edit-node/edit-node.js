@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import JSONDigger from "json-digger";
 import { v4 as uuidv4 } from "uuid";
 import OrganizationChart from "../components/ChartContainer";
-import "./edit-chart.css";
+import "./edit-node.css";
 
-const EditChart = () => {
+const EditNode = () => {
   const orgchart = useRef();
   const datasource = {
     id: "n1",
@@ -43,7 +43,8 @@ const EditChart = () => {
   const dsDigger = new JSONDigger(ds, "id", "children");
 
   const [selectedNodes, setSelectedNodes] = useState(new Set());
-  const [newNodes, setNewNodes] = useState([{ name: "", title: "" }]);
+  const [newNodeName, setNewNodeName] = useState("");
+  const [newNodeTitle, setNewNodeTitle] = useState("");
   const [isEditMode, setIsEditMode] = useState(true);
   const [isMultipleSelect, setIsMultipleSelect] = useState(false);
 
@@ -59,54 +60,17 @@ const EditChart = () => {
     setSelectedNodes(new Set());
   };
 
-  const onNameChange = (e, index) => {
-    newNodes[index].name = e.target.value;
-    setNewNodes([...newNodes]);
+  const onNameChange = e => {
+    setNewNodeName(e.target.value);
   };
 
-  const onTitleChange = (e, index) => {
-    newNodes[index].title = e.target.value;
-    setNewNodes([...newNodes]);
+  const onTitleChange = e => {
+    setNewNodeTitle(e.target.value);
   };
 
-  const addNewNode = () => {
-    setNewNodes(prevNewNodes => [...prevNewNodes, { name: "", title: "" }]);
-  };
-
-  const removeNewNode = index => {
-    setNewNodes(prevNewNodes => {
-      prevNewNodes.splice(index, 1);
-      return [...prevNewNodes];
-    });
-  };
-
-  const getNewNodes = () => {
-    const nodes = [];
-    for (const node of newNodes) {
-      nodes.push({ ...node, id: uuidv4() });
-    }
-    return nodes;
-  };
-
-  const addChildNodes = async () => {
-    await dsDigger.addChildren([...selectedNodes][0].id, getNewNodes());
+  const updateNodes = async () => {
+    await dsDigger.updateNodes([...selectedNodes].map(node => node.id), { id: uuidv4(), name: newNodeName, title: newNodeTitle });
     setDS({ ...dsDigger.ds });
-  };
-
-  const addSiblingNodes = async () => {
-    await dsDigger.addSiblings([...selectedNodes][0].id, getNewNodes());
-    setDS({ ...dsDigger.ds });
-  };
-
-  const addRootNode = () => {
-    dsDigger.addRoot(getNewNodes()[0]);
-    setDS({ ...dsDigger.ds });
-  };
-
-  const remove = async () => {
-    await dsDigger.removeNodes([...selectedNodes].map(node => node.id));
-    setDS({ ...dsDigger.ds });
-    setSelectedNodes(new Set());
   };
 
   const onMultipleSelectChange = e => {
@@ -144,51 +108,25 @@ const EditChart = () => {
           </ul>
         </div>
         <div className="new-nodes">
-          <h4>New Nodes</h4>
-          <ul>
-            {newNodes &&
-              newNodes.map((node, index) => (
-                <li key={index}>
+          <h4>New Node</h4>
+
                   <input
                     type="text"
                     placeholder="name"
-                    value={node.name}
-                    onChange={e => onNameChange(e, index)}
+                    value={newNodeName}
+                    onChange={onNameChange}
                   />
                   <input
                     type="text"
                     placeholder="title"
-                    value={node.title}
-                    onChange={e => onTitleChange(e, index)}
+                    value={newNodeTitle}
+                    onChange={onTitleChange}
                   />
-                  {newNodes.length === 1 || index === newNodes.length - 1 ? (
-                    <button disabled={!isEditMode} onClick={addNewNode}>
-                      +
-                    </button>
-                  ) : (
-                    <button
-                      disabled={!isEditMode}
-                      onClick={() => removeNewNode(index)}
-                    >
-                      -
-                    </button>
-                  )}
-                </li>
-              ))}
-          </ul>
+  
         </div>
         <div className="action-buttons">
-          <button disabled={!isEditMode} onClick={addChildNodes}>
-            Add Child Nodes
-          </button>
-          <button disabled={!isEditMode} onClick={addSiblingNodes}>
-            Add Sibling Nodes
-          </button>
-          <button disabled={!isEditMode} onClick={addRootNode}>
-            Add Root Node
-          </button>
-          <button disabled={!isEditMode} onClick={remove}>
-            Remove Nodes
+          <button disabled={!isEditMode} onClick={updateNodes}>
+            Update Nodes
           </button>
           <input
             style={{ marginLeft: "1rem" }}
@@ -212,4 +150,4 @@ const EditChart = () => {
   );
 };
 
-export default EditChart;
+export default EditNode;

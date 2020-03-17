@@ -63,19 +63,21 @@ const ChartNode = ({
       }
     });
 
-    const subs2 = selectNodeService.getSelectedNodeInfo().subscribe(selectedNodeInfo => {
-      if (selectedNodeInfo) {
-        if (multipleSelect) {
-          if (selectedNodeInfo.selectedNodeId === datasource.id) {
-            setSelected(true);
+    const subs2 = selectNodeService
+      .getSelectedNodeInfo()
+      .subscribe(selectedNodeInfo => {
+        if (selectedNodeInfo) {
+          if (multipleSelect) {
+            if (selectedNodeInfo.selectedNodeId === datasource.id) {
+              setSelected(true);
+            }
+          } else {
+            setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
           }
         } else {
-          setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
+          setSelected(false);
         }
-      } else {
-        setSelected(false);
-      }
-    });
+      });
 
     return () => {
       subs1.unsubscribe();
@@ -200,16 +202,11 @@ const ChartNode = ({
     if (onClickNode) {
       onClickNode(datasource);
     }
-    // setSelected(true);
+
     selectNodeService.sendSelectedNodeInfo(datasource.id);
   };
 
   const dragstartHandler = event => {
-    /*event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
-    // if users enable zoom or direction options
-    if (this.$chart.css('transform') !== 'none') {
-      this.createGhostNode(event);
-    }*/
     const copyDS = { ...datasource };
     delete copyDS.relationship;
     event.dataTransfer.setData("text/plain", JSON.stringify(copyDS));
@@ -258,62 +255,69 @@ const ChartNode = ({
         ) : (
           <>
             <div className="oc-heading">
-              {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
-                <i className="oci oci-leader oc-symbol" />
-              )}
+              {datasource.relationship &&
+                datasource.relationship.charAt(2) === "1" && (
+                  <i className="oci oci-leader oc-symbol" />
+                )}
               {datasource.name}
             </div>
             <div className="oc-content">{datasource.title}</div>
           </>
         )}
-        {collapsible && datasource.relationship && datasource.relationship.charAt(0) === "1" && (
-          <i
-            className={`oc-edge verticalEdge topEdge oci ${
-              topEdgeExpanded === undefined
-                ? ""
-                : topEdgeExpanded
-                ? "oci-chevron-down"
-                : "oci-chevron-up"
-            }`}
-            onClick={topEdgeClickHandler}
-          />
-        )}
-        {collapsible && datasource.relationship && datasource.relationship.charAt(1) === "1" && (
-          <>
+        {collapsible &&
+          datasource.relationship &&
+          datasource.relationship.charAt(0) === "1" && (
             <i
-              className={`oc-edge horizontalEdge rightEdge oci ${
-                rightEdgeExpanded === undefined
+              className={`oc-edge verticalEdge topEdge oci ${
+                topEdgeExpanded === undefined
                   ? ""
-                  : rightEdgeExpanded
-                  ? "oci-chevron-left"
-                  : "oci-chevron-right"
+                  : topEdgeExpanded
+                  ? "oci-chevron-down"
+                  : "oci-chevron-up"
               }`}
-              onClick={hEdgeClickHandler}
+              onClick={topEdgeClickHandler}
             />
+          )}
+        {collapsible &&
+          datasource.relationship &&
+          datasource.relationship.charAt(1) === "1" && (
+            <>
+              <i
+                className={`oc-edge horizontalEdge rightEdge oci ${
+                  rightEdgeExpanded === undefined
+                    ? ""
+                    : rightEdgeExpanded
+                    ? "oci-chevron-left"
+                    : "oci-chevron-right"
+                }`}
+                onClick={hEdgeClickHandler}
+              />
+              <i
+                className={`oc-edge horizontalEdge leftEdge oci ${
+                  leftEdgeExpanded === undefined
+                    ? ""
+                    : leftEdgeExpanded
+                    ? "oci-chevron-right"
+                    : "oci-chevron-left"
+                }`}
+                onClick={hEdgeClickHandler}
+              />
+            </>
+          )}
+        {collapsible &&
+          datasource.relationship &&
+          datasource.relationship.charAt(2) === "1" && (
             <i
-              className={`oc-edge horizontalEdge leftEdge oci ${
-                leftEdgeExpanded === undefined
+              className={`oc-edge verticalEdge bottomEdge oci ${
+                bottomEdgeExpanded === undefined
                   ? ""
-                  : leftEdgeExpanded
-                  ? "oci-chevron-right"
-                  : "oci-chevron-left"
+                  : bottomEdgeExpanded
+                  ? "oci-chevron-up"
+                  : "oci-chevron-down"
               }`}
-              onClick={hEdgeClickHandler}
+              onClick={bottomEdgeClickHandler}
             />
-          </>
-        )}
-        {collapsible && datasource.relationship && datasource.relationship.charAt(2) === "1" && (
-          <i
-            className={`oc-edge verticalEdge bottomEdge oci ${
-              bottomEdgeExpanded === undefined
-                ? ""
-                : bottomEdgeExpanded
-                ? "oci-chevron-up"
-                : "oci-chevron-down"
-            }`}
-            onClick={bottomEdgeClickHandler}
-          />
-        )}
+          )}
       </div>
       {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>

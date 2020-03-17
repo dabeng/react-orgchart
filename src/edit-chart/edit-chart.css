@@ -26,6 +26,10 @@
   list-style: none;
 }
 
+.edit-chart-wrapper .toolbar .new-nodes li {
+  padding: 0.25rem 0;
+}
+
 .edit-chart-wrapper button {
   box-sizing: border-box;
   font-size: 1rem;
