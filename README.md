@@ -15,13 +15,18 @@
 - zoominLimit
 - containerClass
 - chartClass
+- draggable
+- collapsible
+- multipleSelect
+- onClickNode
+- onClickChart
 
 # Install
 ```
 npm install @dabeng/react-orgchart
 ```
 
-# [Demo](https://codesandbox.io/s/react-orgchart-demo-sjq85)
+# [Demo](https://codesandbox.io/s/react-orgchart-demo-o3nf6)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
