@@ -14,7 +14,7 @@
 - Supports pan and zoom
 - Allows user to customize the internal structure for every node
 
-# Props
+## Props
 <table>
   <thead>
     <tr>
@@ -106,7 +106,7 @@
   </tbody>
 </table>
 
-# Methods
+## Methods
 <table>
   <thead>
     <tr>
@@ -124,14 +124,14 @@
       <td>User can use this method to export orgchart to png org pdf file. Sample code: orgchartRef.current.exportTo(filename, fileextension)</td>
     </tr>
   </tbody>
-</table
+</table>
 
-# Install
+## Install
 ```
 npm install @dabeng/react-orgchart
 ```
 
-# [Demo](https://codesandbox.io/s/react-orgchart-demo-o3nf6)
+## [Demo](https://codesandbox.io/s/react-orgchart-demo-o3nf6)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
