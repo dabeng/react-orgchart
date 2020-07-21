@@ -3,15 +3,12 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
-  useImperativeHandle
+  useImperativeHandle,
 } from "react";
 import PropTypes from "prop-types";
 import { selectNodeService } from "./service";
 import JSONDigger from "json-digger";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import ChartNode from "./ChartNode";
-import "./ChartContainer.css";
 
 const propTypes = {
   datasource: PropTypes.object.isRequired,
@@ -26,7 +23,7 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
-  onClickChart: PropTypes.func
+  onClickChart: PropTypes.func,
 };
 
 const defaultProps = {
@@ -38,7 +35,7 @@ const defaultProps = {
   chartClass: "",
   draggable: false,
   collapsible: true,
-  multipleSelect: false
+  multipleSelect: false,
 };
 
 const ChartContainer = forwardRef(
@@ -56,7 +53,7 @@ const ChartContainer = forwardRef(
       collapsible,
       multipleSelect,
       onClickNode,
-      onClickChart
+      onClickChart,
     },
     ref
   ) => {
@@ -77,7 +74,7 @@ const ChartContainer = forwardRef(
       data.relationship =
         flags + (data.children && data.children.length > 0 ? 1 : 0);
       if (data.children) {
-        data.children.forEach(function(item) {
+        data.children.forEach(function (item) {
           attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
         });
       }
@@ -91,7 +88,7 @@ const ChartContainer = forwardRef(
 
     const dsDigger = new JSONDigger(datasource, "id", "children");
 
-    const clickChartHandler = event => {
+    const clickChartHandler = (event) => {
       if (!event.target.closest(".oc-node")) {
         if (onClickChart) {
           onClickChart();
@@ -105,7 +102,7 @@ const ChartContainer = forwardRef(
       setCursor("default");
     };
 
-    const panHandler = e => {
+    const panHandler = (e) => {
       let newX = 0;
       let newY = 0;
       if (!e.targetTouches) {
@@ -140,7 +137,7 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const panStartHandler = e => {
+    const panStartHandler = (e) => {
       if (e.target.closest(".oc-node")) {
         setPanning(false);
         return;
@@ -173,7 +170,7 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const updateChartScale = newScale => {
+    const updateChartScale = (newScale) => {
       let matrix = [];
       let targetScale = 1;
       if (transform === "") {
@@ -198,28 +195,30 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const zoomHandler = e => {
+    const zoomHandler = (e) => {
       let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
       updateChartScale(newScale);
     };
 
     const exportPDF = (canvas, exportFilename) => {
-      const canvasWidth = Math.floor(canvas.width);
-      const canvasHeight = Math.floor(canvas.height);
-      const doc =
-        canvasWidth > canvasHeight
-          ? new jsPDF({
-              orientation: "landscape",
-              unit: "px",
-              format: [canvasWidth, canvasHeight]
-            })
-          : new jsPDF({
-              orientation: "portrait",
-              unit: "px",
-              format: [canvasHeight, canvasWidth]
-            });
-      doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
-      doc.save(exportFilename + ".pdf");
+      import("jspdf").then((jsPDF) => {
+        const canvasWidth = Math.floor(canvas.width);
+        const canvasHeight = Math.floor(canvas.height);
+        const doc =
+          canvasWidth > canvasHeight
+            ? new jsPDF({
+                orientation: "landscape",
+                unit: "px",
+                format: [canvasWidth, canvasHeight],
+              })
+            : new jsPDF({
+                orientation: "portrait",
+                unit: "px",
+                format: [canvasHeight, canvasWidth],
+              });
+        doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
+        doc.save(exportFilename + ".pdf");
+      });
     };
 
     const exportPNG = (canvas, exportFilename) => {
@@ -239,10 +238,13 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const changeHierarchy = async (draggedItemData, dropTargetId) => {
-      await dsDigger.removeNode(draggedItemData.id);
-      await dsDigger.addChildren(dropTargetId, draggedItemData);
-      setDS({ ...dsDigger.ds });
+    const changeHierarchy = (draggedItemData, dropTargetId) => {
+      return dsDigger
+        .removeNode(draggedItemData.id)
+        .then(() => dsDigger.addChildren(dropTargetId, draggedItemData))
+        .then(() => {
+          setDS({ ...dsDigger.ds });
+        });
     };
 
     useImperativeHandle(ref, () => ({
@@ -254,44 +256,46 @@ const ChartContainer = forwardRef(
         container.current.scrollLeft = 0;
         const originalScrollTop = container.current.scrollTop;
         container.current.scrollTop = 0;
-        html2canvas(chart.current, {
-          width: chart.current.clientWidth,
-          height: chart.current.clientHeight,
-          onclone: function(clonedDoc) {
-            clonedDoc.querySelector(".orgchart").style.background = "none";
-            clonedDoc.querySelector(".orgchart").style.transform = "";
-          }
-        }).then(
-          canvas => {
-            if (exportFileextension.toLowerCase() === "pdf") {
-              exportPDF(canvas, exportFilename);
-            } else {
-              exportPNG(canvas, exportFilename);
+        import("html2canvas").then((html2canvas) => {
+          html2canvas(chart.current, {
+            width: chart.current.clientWidth,
+            height: chart.current.clientHeight,
+            onclone: function (clonedDoc) {
+              clonedDoc.querySelector(".orgchart").style.background = "none";
+              clonedDoc.querySelector(".orgchart").style.transform = "";
+            },
+          }).then(
+            (canvas) => {
+              if (exportFileextension.toLowerCase() === "pdf") {
+                exportPDF(canvas, exportFilename);
+              } else {
+                exportPNG(canvas, exportFilename);
+              }
+              setExporting(false);
+              container.current.scrollLeft = originalScrollLeft;
+              container.current.scrollTop = originalScrollTop;
+            },
+            () => {
+              setExporting(false);
+              container.current.scrollLeft = originalScrollLeft;
+              container.current.scrollTop = originalScrollTop;
             }
-            setExporting(false);
-            container.current.scrollLeft = originalScrollLeft;
-            container.current.scrollTop = originalScrollTop;
-          },
-          () => {
-            setExporting(false);
-            container.current.scrollLeft = originalScrollLeft;
-            container.current.scrollTop = originalScrollTop;
-          }
-        );
+          );
+        });
       },
       expandAllNodes: () => {
         chart.current
           .querySelectorAll(
             ".oc-node.hidden, .oc-hierarchy.hidden, .isSiblingsCollapsed, .isAncestorsCollapsed"
           )
-          .forEach(el => {
+          .forEach((el) => {
             el.classList.remove(
               "hidden",
               "isSiblingsCollapsed",
               "isAncestorsCollapsed"
             );
           });
-      }
+      },
     }));
 
     return (

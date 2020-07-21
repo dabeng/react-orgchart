@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { dragNodeService, selectNodeService } from "./service";
-import "./ChartNode.css";
 
 const propTypes = {
   datasource: PropTypes.object,
@@ -10,13 +9,13 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
-  onClickNode: PropTypes.func
+  onClickNode: PropTypes.func,
 };
 
 const defaultProps = {
   draggable: false,
   collapsible: true,
-  multipleSelect: false
+  multipleSelect: false,
 };
 
 const ChartNode = ({
@@ -26,7 +25,7 @@ const ChartNode = ({
   collapsible,
   multipleSelect,
   changeHierarchy,
-  onClickNode
+  onClickNode,
 }) => {
   const node = useRef();
 
@@ -42,13 +41,13 @@ const ChartNode = ({
     "oc-node",
     isChildrenCollapsed ? "isChildrenCollapsed" : "",
     allowedDrop ? "allowedDrop" : "",
-    selected ? "selected" : ""
+    selected ? "selected" : "",
   ]
-    .filter(item => item)
+    .filter((item) => item)
     .join(" ");
 
   useEffect(() => {
-    const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
+    const subs1 = dragNodeService.getDragInfo().subscribe((draggedInfo) => {
       if (draggedInfo) {
         setAllowedDrop(
           !document
@@ -65,7 +64,7 @@ const ChartNode = ({
 
     const subs2 = selectNodeService
       .getSelectedNodeInfo()
-      .subscribe(selectedNodeInfo => {
+      .subscribe((selectedNodeInfo) => {
         if (selectedNodeInfo) {
           if (multipleSelect) {
             if (selectedNodeInfo.selectedNodeId === datasource.id) {
@@ -85,7 +84,7 @@ const ChartNode = ({
     };
   }, [multipleSelect, datasource]);
 
-  const addArrows = e => {
+  const addArrows = (e) => {
     const node = e.target.closest("li");
     const parent = node.parentNode.closest("li");
     const isAncestorsCollapsed =
@@ -94,7 +93,7 @@ const ChartNode = ({
         : undefined;
     const isSiblingsCollapsed = Array.from(
       node.parentNode.children
-    ).some(item => item.classList.contains("hidden"));
+    ).some((item) => item.classList.contains("hidden"));
 
     setTopEdgeExpanded(!isAncestorsCollapsed);
     setRightEdgeExpanded(!isSiblingsCollapsed);
@@ -109,7 +108,7 @@ const ChartNode = ({
     setLeftEdgeExpanded(undefined);
   };
 
-  const toggleAncestors = actionNode => {
+  const toggleAncestors = (actionNode) => {
     let node = actionNode.parentNode.closest("li");
     if (!node) return;
     const isAncestorsCollapsed = node.firstChild.classList.contains("hidden");
@@ -121,7 +120,7 @@ const ChartNode = ({
       // 向下折叠，则折叠所有祖先节点以及祖先节点的兄弟节点
       const isSiblingsCollapsed = Array.from(
         actionNode.parentNode.children
-      ).some(item => item.classList.contains("hidden"));
+      ).some((item) => item.classList.contains("hidden"));
       if (!isSiblingsCollapsed) {
         toggleSiblings(actionNode);
       }
@@ -142,23 +141,23 @@ const ChartNode = ({
     }
   };
 
-  const topEdgeClickHandler = e => {
+  const topEdgeClickHandler = (e) => {
     e.stopPropagation();
     setTopEdgeExpanded(!topEdgeExpanded);
     toggleAncestors(e.target.closest("li"));
   };
 
-  const bottomEdgeClickHandler = e => {
+  const bottomEdgeClickHandler = (e) => {
     e.stopPropagation();
     setIsChildrenCollapsed(!isChildrenCollapsed);
     setBottomEdgeExpanded(!bottomEdgeExpanded);
   };
 
-  const toggleSiblings = actionNode => {
+  const toggleSiblings = (actionNode) => {
     let node = actionNode.previousSibling;
     const isSiblingsCollapsed = Array.from(
       actionNode.parentNode.children
-    ).some(item => item.classList.contains("hidden"));
+    ).some((item) => item.classList.contains("hidden"));
     actionNode.classList.toggle("isSiblingsCollapsed", !isSiblingsCollapsed);
     // 先处理同级的兄弟节点
     while (node) {
@@ -187,18 +186,18 @@ const ChartNode = ({
     }
   };
 
-  const hEdgeClickHandler = e => {
+  const hEdgeClickHandler = (e) => {
     e.stopPropagation();
     setLeftEdgeExpanded(!leftEdgeExpanded);
     setRightEdgeExpanded(!rightEdgeExpanded);
     toggleSiblings(e.target.closest("li"));
   };
 
-  const filterAllowedDropNodes = id => {
+  const filterAllowedDropNodes = (id) => {
     dragNodeService.sendDragInfo(id);
   };
 
-  const clickNodeHandler = event => {
+  const clickNodeHandler = (event) => {
     if (onClickNode) {
       onClickNode(datasource);
     }
@@ -206,7 +205,7 @@ const ChartNode = ({
     selectNodeService.sendSelectedNodeInfo(datasource.id);
   };
 
-  const dragstartHandler = event => {
+  const dragstartHandler = (event) => {
     const copyDS = { ...datasource };
     delete copyDS.relationship;
     event.dataTransfer.setData("text/plain", JSON.stringify(copyDS));
@@ -214,7 +213,7 @@ const ChartNode = ({
     filterAllowedDropNodes(node.current.id);
   };
 
-  const dragoverHandler = event => {
+  const dragoverHandler = (event) => {
     // prevent default to allow drop
     event.preventDefault();
   };
@@ -224,7 +223,7 @@ const ChartNode = ({
     dragNodeService.clearDragInfo();
   };
 
-  const dropHandler = event => {
+  const dropHandler = (event) => {
     if (!event.currentTarget.classList.contains("allowedDrop")) {
       return;
     }
@@ -321,7 +320,7 @@ const ChartNode = ({
       </div>
       {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>
-          {datasource.children.map(node => (
+          {datasource.children.map((node) => (
             <ChartNode
               datasource={node}
               NodeTemplate={NodeTemplate}
