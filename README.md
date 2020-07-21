@@ -1,8 +1,8 @@
-Hi guys
+<h1>Hi guys </h1>
 
-this is an orgchat Libary that work with nextjs , we use <a href="https://github.com/dabeng/react-orgchart">React-orgchart</a> libary and made some major changes to make it work with Nextjs
+this is an orgchart Libary that work with nextjs , we use <a href="https://github.com/dabeng/react-orgchart">React-orgchart</a> libary and made some major changes to make it work with Nextjs
 
-<h1>How to Use </h1>
+<h2>How to Use </h2>
 First you need to install the Liabry using npm :
 npm i nextjs-orgchart
 
