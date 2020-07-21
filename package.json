@@ -1,6 +1,6 @@
 {
   "name": "nextjs-orgchart",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./dist/ChartContainer.js",
   "files": [
     "dist",
@@ -8,7 +8,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dabeng/react-orgchart.git"
+    "url": "https://github.com/mahyarmadad/nextjs-orgchart"
   },
   "keywords": [
     "react",
@@ -20,12 +20,12 @@
     "tree-like",
     "tree-view"
   ],
-  "author": "dabeng <dabeng413@gmail.com>",
+  "author": "dabeng <dabeng413@gmail.com> && mahyarmadad",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dabeng/react-orgchart/issues"
+    "url": "https://github.com/mahyarmadad/nextjs-orgchart/issues"
   },
-  "homepage": "https://github.com/dabeng/react-orgchart#readme",
+  "homepage": "https://github.com/mahyarmadad/nextjs-orgchart#readme",
   "babel": {
     "presets": [
       "@babel/preset-env",
