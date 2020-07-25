@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import './components/ChartContainer.css'
+import './components/ChartNode.css'
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

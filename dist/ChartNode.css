@@ -1,13 +1,17 @@
+
 .orgchart ul {
   padding-left: 0;
   text-align: center;
   display: flex;
   margin: 0;
+  transition: transform 0.3s, opacity 0.3s;
 }
+
 .orgchart ul li {
   display: inline-block;
   position: relative;
 }
+
 /* excluding root node */
 .orgchart > ul > li > ul li::before {
   content: "";
@@ -19,13 +23,19 @@
   box-sizing: border-box;
 }
 
+.orgchart > ul > li > ul li.isSiblingsCollapsed::before {
+  content: none;
+}
+
 .orgchart > ul > li > ul li:first-child::before {
   left: calc(50% - 1px);
   width: calc(50% + 1px);
 }
+
 .orgchart > ul > li > ul li:last-child::before {
   width: calc(50% + 1px);
 }
+
 .orgchart > ul > li > ul li:only-child::before {
   width: 2px;
 }
@@ -34,14 +44,23 @@
   display: inline-block;
   position: relative;
   padding: 3px;
-  border: 2px solid transparent;
+  border: 2px dashed transparent;
   margin-bottom: 20px;
+}
+.orgchart ul li .oc-node.allowedDrop {
+  border-color: rgba(68, 157, 68, 0.9);
+}
+.orgchart ul li .oc-node.currentDropTarget {
+  background-color: rgba(68, 157, 68, 0.9);
+}
+.orgchart ul li .oc-node.selected {
+  background-color: rgba(238, 217, 54, 0.5);
 }
 .orgchart ul li .oc-node:hover {
   background-color: rgba(238, 217, 54, 0.5);
 }
 /* excluding root node */
-.orgchart > ul > li > ul li .oc-node::before {
+.orgchart > ul > li > ul li > .oc-node::before {
   content: "";
   position: absolute;
   top: -11px;
@@ -50,6 +69,16 @@
   height: 9px;
   background-color: rgba(217, 83, 79, 0.8);
 }
+
+.orgchart > ul > li > ul li.isSiblingsCollapsed > .oc-node::before {
+  top: -13px;
+  height: 11px;
+}
+
+.orgchart > ul > li > ul li.isAncestorsCollapsed > .oc-node::before {
+  content: none;
+}
+
 /* excluding leaf node */
 .orgchart ul li .oc-node:not(:only-child)::after {
   content: "";
@@ -60,6 +89,11 @@
   height: 9px;
   background-color: rgba(217, 83, 79, 0.8);
 }
+
+.orgchart ul li .oc-node.isChildrenCollapsed:not(:only-child)::after {
+  content: none;
+}
+
 .orgchart ul li .oc-node .oc-heading {
   box-sizing: border-box;
   padding: 2px;
@@ -76,6 +110,22 @@
   color: #fff;
   border-radius: 4px 4px 0 0;
 }
+
+.orgchart ul li .oc-node .oc-heading .oc-symbol {
+  float: left;
+  margin-top: 12px;
+  margin-left: 2px;
+}
+
+.orgchart ul li .oc-node .oc-heading .oc-symbol::before {
+  background-color: #fff;
+  border-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart ul li .oc-node .oc-heading .oc-symbol::after {
+  background-color: #fff;
+}
+
 .orgchart ul li .oc-node .oc-content {
   box-sizing: border-box;
   padding: 2px;
@@ -89,4 +139,314 @@
   color: #333;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* styles for edges */
+.orgchart .oc-node .oc-edge {
+  position: absolute;
+  cursor: default;
+  transition: .2s;
+}
+
+.orgchart .oc-node .oc-edge::before {
+  border-color: rgba(68, 157, 68, 0.5);
+}
+
+.orgchart.noncollapsable .oc-node .oc-edge {
+  display: none;
+}
+
+.orgchart .oc-node .oc-edge:hover {
+  cursor: pointer;
+}
+
+.orgchart .oc-edge:hover::before {
+  border-color: #449d44;
+}
+
+.orgchart .oc-node .verticalEdge {
+  width: calc(100% - 6px);
+  width: -webkit-calc(100% - 6px);
+  width: -moz-calc(100% - 6px);
+  height: 10px;
+  left: 3px;
+}
+
+.orgchart .oc-node .verticalEdge::before {
+  position: absolute;
+  left: calc(50% - 0.3125rem);
+}
+
+.orgchart .oc-node .topEdge {
+  top: -2px;
+}
+
+.orgchart .oc-node .topEdge.oci-chevron-up::before {
+  top: 2px;
+}
+
+.orgchart .oc-node .topEdge.oci-chevron-down::before {
+  bottom: 3px;
+}
+
+.orgchart .oc-node .bottomEdge {
+  bottom: -2px;
+}
+
+.orgchart .oc-node .bottomEdge.oci-chevron-up::before {
+  bottom: -3px;
+}
+
+.orgchart .oc-node .bottomEdge.oci-chevron-down::before {
+  bottom: 1px;
+}
+
+.orgchart .oc-node .horizontalEdge {
+  width: 10px;
+  height: calc(100% - 6px);
+  height: -webkit-calc(100% - 6px);
+  height: -moz-calc(100% - 6px);
+  top: 3px;
+}
+
+.orgchart .oc-node .rightEdge {
+  right: -2px;
+}
+
+.orgchart .oc-node .leftEdge {
+  left: -2px;
+}
+
+.orgchart .oc-node .horizontalEdge::before {
+  position: absolute;
+  top: calc(50% - 0.3125rem);
+}
+
+.orgchart .oc-node .rightEdge.oci-chevron-left::before {
+  right: -3px;
+}
+
+.orgchart .oc-node .rightEdge.oci-chevron-right::before {
+  right: 1px;
+}
+
+.orgchart .oc-node .leftEdge.oci-chevron-right::before {
+  left: -3px;
+}
+
+.orgchart .oc-node .leftEdge.oci-chevron-left::before {
+  left: 1px;
+}
+
+/* slide animations */
+.orgchart .slide-up {
+  opacity: 0;
+  transform: translateY(-40px);
+}
+
+.orgchart .slide-down {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.orgchart .slide-left {
+  opacity: 0;
+  transform: translateX(-130px);
+}
+
+.orgchart .slide-right {
+  opacity: 0;
+  transform: translateX(130px);
+}
+
+/* oci means organization chart icons */
+.oci {
+  display: inline-block;
+  position: relative;
+  font-style: normal;
+  font-family: Arial;
+}
+
+.oci-chevron-up::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: text-bottom;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-135deg);
+}
+
+.oci-chevron-right::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-45deg);
+}
+
+.oci-chevron-down::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.oci-chevron-left::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(135deg);
+}
+
+.oci-leader::before {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 0.2rem;
+  background: #000;
+  top: -0.75rem;
+  left: 0.125rem;
+}
+
+.oci-leader::after {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.375rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+  background: #000;
+  top: -0.3rem;
+  left: -0.125rem;
+}
+
+.oci-plus-square::before {
+  content: "+";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-plus-circle::before {
+  content: "+";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-minus-square::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-minus-circle::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-arrow-circle-up::before {
+  content: "▲";
+  display: inline-block;
+  text-align: center;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.oci-arrow-circle-down::before {
+  content: "▼";
+  text-align: center;
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.oci-info-circle::before {
+  content: "i";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+
+.oci-spinner::before {
+  content: "";
+  vertical-align: text-bottom;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 0.1rem solid #000;
+  border-right-color: transparent;
+  border-radius: 0.625rem;
+  animation: oci-infinite-spinning .75s linear infinite;
+}
+
+@keyframes oci-infinite-spinning {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

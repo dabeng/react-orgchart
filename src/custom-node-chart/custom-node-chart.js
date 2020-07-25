@@ -6,38 +6,48 @@ const CustomNodeChart = () => {
   const ds = {
     id: "n1",
     name: "Lao Lao",
-    title: "general manager",
+		title: "general manager",
+		isLeaf: false,
+		defaultExpanded: false,
+		Hierarchy: [],
     children: [
-      { id: "n2", name: "Bo Miao", title: "department manager" },
-      {
-        id: "n3",
-        name: "Su Miao",
-        title: "department manager",
-        children: [
-          { id: "n4", name: "Tie Hua", title: "senior engineer" },
-          {
-            id: "n5",
-            name: "Hei Hei",
-            title: "senior engineer",
-            children: [
-              { id: "n6", name: "Dan Dan", title: "engineer" },
-              { id: "n7", name: "Xiang Xiang", title: "engineer" }
-            ]
-          },
-          { id: "n8", name: "Pang Pang", title: "senior engineer" }
-        ]
-      },
-      { id: "n9", name: "Hong Miao", title: "department manager" },
-      {
-        id: "n10",
-        name: "Chun Miao",
-        title: "department manager",
-        children: [{ id: "n11", name: "Yue Yue", title: "senior engineer" }]
-      }
-    ]
-  };
+			{
+				id: Math.random().toString(),
+				name: "Henry Ford",
+				title: "department manager",
+				isLeaf: false,
+				defaultExpanded: false,
+				Hierarchy: ["n1"]
 
-  return <OrganizationChart datasource={ds} chartClass="myChart" NodeTemplate={MyNode}/>;
+			},
+			{
+				id: Math.random().toString(),
+				name: "Steve",
+				title: "department manager",
+				isLeaf: false,
+				defaultExpanded: false,
+				Hierarchy: ["n1"]
+
+			},
+		]
+  };
+	const onLoadData = (node) => {
+		return new Promise((resolve, reject) => {
+			resolve([
+          {
+            id: Math.random().toString(),
+            name: "Armin",
+            title: "department manager",
+          },
+          {
+            id: Math.random().toString(),
+            name: "Elon",
+            title: "department manager",
+          },
+        ])
+		})
+	}
+  return <OrganizationChart datasource={ds} chartClass="myChart" NodeTemplate={MyNode} loadOnDemand={true} onLoadData={onLoadData} />;
 };
 
 export default CustomNodeChart;
