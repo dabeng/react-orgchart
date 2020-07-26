@@ -7,9 +7,9 @@ const CustomNodeChart = () => {
     id: "n1",
     name: "Lao Lao",
 		title: "general manager",
+		defaultExpanded: true,
+
 		isLeaf: false,
-		defaultExpanded: false,
-		Hierarchy: [],
     children: [
 			{
 				id: Math.random().toString(),
@@ -17,8 +17,6 @@ const CustomNodeChart = () => {
 				title: "department manager",
 				isLeaf: false,
 				defaultExpanded: false,
-				Hierarchy: ["n1"]
-
 			},
 			{
 				id: Math.random().toString(),
@@ -26,8 +24,6 @@ const CustomNodeChart = () => {
 				title: "department manager",
 				isLeaf: false,
 				defaultExpanded: false,
-				Hierarchy: ["n1"]
-
 			},
 		]
   };

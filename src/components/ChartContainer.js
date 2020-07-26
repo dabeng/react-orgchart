@@ -113,17 +113,11 @@ const ChartContainer = forwardRef(
 
     };
 
-    const onLoadDataFinished = ({ id, childrens }) => {
-      const newDs = { ...ds };
-      let treeCursor = newDs;
-      for (let parent of childrens[0].Hierarchy) {
-        if (treeCursor.id !== parent) {
-          treeCursor = treeCursor.children.find((child) => child.id === parent);
-        }
-      }
-      treeCursor.children = childrens;
-      setDS(newDs);
-    };
+    const onLoadDataFinished = async ({ id, childrens }) => {
+			await dsDigger.addChildren(id, childrens);
+      setDS({ ...dsDigger.ds });
+		};
+		
     const dsDigger = new JSONDigger(datasource, "id", "children");
 
     const clickChartHandler = (event) => {

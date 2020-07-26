@@ -27,15 +27,15 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -58,7 +58,9 @@ var propTypes = {
   collapsible: _propTypes.default.bool,
   multipleSelect: _propTypes.default.bool,
   onClickNode: _propTypes.default.func,
-  onClickChart: _propTypes.default.func
+  onClickChart: _propTypes.default.func,
+  onLoadData: _propTypes.default.func,
+  expandedNodes: _propTypes.default.array
 };
 var defaultProps = {
   pan: false,
@@ -86,7 +88,9 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
       multipleSelect = _ref.multipleSelect,
       onClickNode = _ref.onClickNode,
       onClickChart = _ref.onClickChart,
-      loadOnDemand = _ref.loadOnDemand;
+      loadOnDemand = _ref.loadOnDemand,
+      onLoadData = _ref.onLoadData,
+      expandedNodes = _ref.expandedNodes;
   var container = (0, _react.useRef)();
   var chart = (0, _react.useRef)();
   var downloadButton = (0, _react.useRef)();
@@ -156,30 +160,46 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
       ds = _useState18[0],
       setDS = _useState18[1];
 
-  var onLoadData = function onLoadData(node) {
-    setTimeout(function () {
-      var childrens = [{
-        id: Math.random().toString(),
-        name: "Armin",
-        title: "department manager"
-      }, {
-        id: Math.random().toString(),
-        name: "Elon",
-        title: "department manager"
-      }];
-      childrens.map(function (ch) {
-        ch.Hierarchy = node.Hierarchy ? node.Hierarchy.concat([node.id]) : [node.id];
-      });
-      onLoadDataFinished({
-        id: node.id,
-        childrens: childrens
-      });
-    }, 500);
-  };
+  var onLoadNode =
+  /*#__PURE__*/
+  function () {
+    var _ref2 = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee(node) {
+      var childrens;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return onLoadData(node);
 
-  var onLoadDataFinished = function onLoadDataFinished(_ref2) {
-    var id = _ref2.id,
-        childrens = _ref2.childrens;
+            case 2:
+              childrens = _context.sent;
+              childrens.map(function (ch) {
+                ch.Hierarchy = node.Hierarchy ? node.Hierarchy.concat([node.id]) : [node.id];
+              });
+              onLoadDataFinished({
+                id: node.id,
+                childrens: childrens
+              });
+
+            case 5:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    return function onLoadNode(_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
+  var onLoadDataFinished = function onLoadDataFinished(_ref3) {
+    var id = _ref3.id,
+        childrens = _ref3.childrens;
 
     var newDs = _objectSpread({}, ds);
 
@@ -379,18 +399,18 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
   var changeHierarchy =
   /*#__PURE__*/
   function () {
-    var _ref3 = _asyncToGenerator(
+    var _ref4 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee(draggedItemData, dropTargetId) {
-      return regeneratorRuntime.wrap(function _callee$(_context) {
+    regeneratorRuntime.mark(function _callee2(draggedItemData, dropTargetId) {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
-              _context.next = 2;
+              _context2.next = 2;
               return dsDigger.removeNode(draggedItemData.id);
 
             case 2:
-              _context.next = 4;
+              _context2.next = 4;
               return dsDigger.addChildren(dropTargetId, draggedItemData);
 
             case 4:
@@ -398,14 +418,14 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
 
             case 5:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee);
+      }, _callee2);
     }));
 
-    return function changeHierarchy(_x, _x2) {
-      return _ref3.apply(this, arguments);
+    return function changeHierarchy(_x2, _x3) {
+      return _ref4.apply(this, arguments);
     };
   }();
 
@@ -473,7 +493,7 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
     changeHierarchy: changeHierarchy,
     onClickNode: onClickNode,
     loadOnDemand: loadOnDemand,
-    onLoadData: onLoadData
+    onLoadNode: onLoadNode
   }))), _react.default.createElement("a", {
     className: "oc-download-btn hidden",
     ref: downloadButton,

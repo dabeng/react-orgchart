@@ -70,10 +70,10 @@ var ChartNode = function ChartNode(_ref) {
       changeHierarchy = _ref.changeHierarchy,
       onClickNode = _ref.onClickNode,
       loadOnDemand = _ref.loadOnDemand,
-      onLoadData = _ref.onLoadData;
+      onLoadNode = _ref.onLoadNode;
   var node = (0, _react.useRef)();
 
-  var _useState = (0, _react.useState)(loadOnDemand),
+  var _useState = (0, _react.useState)(datasource.defaultExpanded !== undefined ? !datasource.defaultExpanded : false),
       _useState2 = _slicedToArray(_useState, 2),
       isChildrenCollapsed = _useState2[0],
       setIsChildrenCollapsed = _useState2[1];
@@ -88,7 +88,7 @@ var ChartNode = function ChartNode(_ref) {
       rightEdgeExpanded = _useState6[0],
       setRightEdgeExpanded = _useState6[1];
 
-  var _useState7 = (0, _react.useState)(),
+  var _useState7 = (0, _react.useState)(datasource.defaultExpanded === true),
       _useState8 = _slicedToArray(_useState7, 2),
       bottomEdgeExpanded = _useState8[0],
       setBottomEdgeExpanded = _useState8[1];
@@ -209,8 +209,8 @@ var ChartNode = function ChartNode(_ref) {
             case 0:
               e.stopPropagation();
 
-              if (loadOnDemand && datasource.Hierarchy && isChildrenCollapsed) {
-                onLoadData(datasource);
+              if (loadOnDemand && datasource.Hierarchy && isChildrenCollapsed && (!datasource.children || datasource.children.length === 0)) {
+                onLoadNode(datasource);
                 setIsChildrenCollapsed(false);
                 setBottomEdgeExpanded(true);
               } else {
@@ -364,7 +364,7 @@ var ChartNode = function ChartNode(_ref) {
       changeHierarchy: changeHierarchy,
       onClickNode: onClickNode,
       loadOnDemand: loadOnDemand,
-      onLoadData: onLoadData
+      onLoadNode: onLoadNode
     });
   })));
 };

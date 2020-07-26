@@ -31,11 +31,10 @@ const ChartNode = ({
 	onLoadNode
 }) => {
   const node = useRef();
-
-  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(datasource.defaultExpanded !== undefined ? !datasource.defaultExpanded: false);
+  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(!datasource.defaultExpanded);
   const [topEdgeExpanded, setTopEdgeExpanded] = useState();
   const [rightEdgeExpanded, setRightEdgeExpanded] = useState();
-  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(datasource.defaultExpanded === true);
+  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(datasource.defaultExpanded);
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
   const [allowedDrop, setAllowedDrop] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -152,7 +151,7 @@ const ChartNode = ({
 
   const bottomEdgeClickHandler = async (e) => {
     e.stopPropagation();
-    if (loadOnDemand && datasource.Hierarchy && isChildrenCollapsed && (!datasource.children || datasource.children.length ===0 )) {
+    if (loadOnDemand && isChildrenCollapsed && (!datasource.children || datasource.children.length ===0 )) {
 				onLoadNode(datasource);
 			 setIsChildrenCollapsed(false)
 			 setBottomEdgeExpanded(true)
@@ -243,6 +242,12 @@ const ChartNode = ({
     );
 	};
 
+	const setCollapse = (collapse) => {
+		console.log(collapse)
+		setIsChildrenCollapsed(collapse);
+		setBottomEdgeExpanded(!collapse)
+	}
+
   return (
     <li className="oc-hierarchy">
       <div
@@ -259,7 +264,7 @@ const ChartNode = ({
         onMouseLeave={removeArrows}
       >
         {NodeTemplate ? (
-          <NodeTemplate nodeData={datasource} />
+          <NodeTemplate nodeData={datasource} setCollapse={setCollapse} />
         ) : (
           <>
             <div className="oc-heading">
