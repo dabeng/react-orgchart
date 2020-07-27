@@ -26,7 +26,6 @@ const propTypes = {
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
 	onClickChart: PropTypes.func,
-	onLoadData: PropTypes.func,
 	expandedNodes: PropTypes.array
 };
 
@@ -61,7 +60,6 @@ const ChartContainer = forwardRef(
       onClickChart,
 			loadOnDemand,
 			onLoadData,
-			expandedNodes
     },
     ref
   ) => {
@@ -99,22 +97,8 @@ const ChartContainer = forwardRef(
 
     const [ds, setDS] = useState(datasource);
 
-    const onLoadNode = async (node) => {
-			const childrens = await onLoadData(node)
-        childrens.map((ch) => {
-          ch.Hierarchy = node.Hierarchy
-            ? node.Hierarchy.concat([node.id])
-            : [node.id];
-        });
-        onLoadDataFinished({
-          id: node.id,
-          childrens,
-        });
-
-    };
-
-    const onLoadDataFinished = async ({ id, childrens }) => {
-			await dsDigger.addChildren(id, childrens);
+    const onLoadDataFinished = async (datasource, children) => {
+			await dsDigger.updateNode({...datasource, children});
       setDS({ ...dsDigger.ds });
 		};
 		
@@ -347,8 +331,9 @@ const ChartContainer = forwardRef(
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
-              loadOnDemand={loadOnDemand}
-              onLoadNode={onLoadNode}
+							loadOnDemand={loadOnDemand}
+							onLoadData={onLoadData}
+							onLoadDataFinished={onLoadDataFinished}
             />
           </ul>
         </div>

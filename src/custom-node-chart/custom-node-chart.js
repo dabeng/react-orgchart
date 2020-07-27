@@ -2,6 +2,23 @@ import React from "react";
 import OrganizationChart from "../components/ChartContainer";
 import MyNode from "./my-node";
 
+export const onLoadData = (node) => {
+	return new Promise((resolve, reject) => {
+		resolve([
+				{
+					id: Math.random().toString(),
+					name: "Armin",
+					title: "department manager",
+				},
+				{
+					id: Math.random().toString(),
+					name: "Elon",
+					title: "department manager",
+				},
+			])
+	})
+}
+
 const CustomNodeChart = () => {
   const ds = {
     id: "n1",
@@ -27,22 +44,7 @@ const CustomNodeChart = () => {
 			},
 		]
   };
-	const onLoadData = (node) => {
-		return new Promise((resolve, reject) => {
-			resolve([
-          {
-            id: Math.random().toString(),
-            name: "Armin",
-            title: "department manager",
-          },
-          {
-            id: Math.random().toString(),
-            name: "Elon",
-            title: "department manager",
-          },
-        ])
-		})
-	}
+
   return <OrganizationChart datasource={ds} chartClass="myChart" NodeTemplate={MyNode} loadOnDemand={true} onLoadData={onLoadData} />;
 };
 

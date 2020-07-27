@@ -73,7 +73,7 @@ var ChartNode = function ChartNode(_ref) {
       onLoadNode = _ref.onLoadNode;
   var node = (0, _react.useRef)();
 
-  var _useState = (0, _react.useState)(datasource.defaultExpanded !== undefined ? !datasource.defaultExpanded : false),
+  var _useState = (0, _react.useState)(!datasource.defaultExpanded),
       _useState2 = _slicedToArray(_useState, 2),
       isChildrenCollapsed = _useState2[0],
       setIsChildrenCollapsed = _useState2[1];
@@ -88,7 +88,7 @@ var ChartNode = function ChartNode(_ref) {
       rightEdgeExpanded = _useState6[0],
       setRightEdgeExpanded = _useState6[1];
 
-  var _useState7 = (0, _react.useState)(datasource.defaultExpanded === true),
+  var _useState7 = (0, _react.useState)(datasource.defaultExpanded),
       _useState8 = _slicedToArray(_useState7, 2),
       bottomEdgeExpanded = _useState8[0],
       setBottomEdgeExpanded = _useState8[1];
@@ -209,7 +209,7 @@ var ChartNode = function ChartNode(_ref) {
             case 0:
               e.stopPropagation();
 
-              if (loadOnDemand && datasource.Hierarchy && isChildrenCollapsed && (!datasource.children || datasource.children.length === 0)) {
+              if (loadOnDemand && isChildrenCollapsed && (!datasource.children || datasource.children.length === 0)) {
                 onLoadNode(datasource);
                 setIsChildrenCollapsed(false);
                 setBottomEdgeExpanded(true);
@@ -316,6 +316,11 @@ var ChartNode = function ChartNode(_ref) {
     changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
   };
 
+  var setCollapse = function setCollapse(collapse) {
+    setIsChildrenCollapsed(collapse);
+    setBottomEdgeExpanded(!collapse);
+  };
+
   return _react.default.createElement("li", {
     className: "oc-hierarchy"
   }, _react.default.createElement("div", {
@@ -331,7 +336,8 @@ var ChartNode = function ChartNode(_ref) {
     onMouseEnter: addArrows,
     onMouseLeave: removeArrows
   }, NodeTemplate ? _react.default.createElement(NodeTemplate, {
-    nodeData: datasource
+    nodeData: datasource,
+    setCollapse: setCollapse
   }) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
     className: "oc-heading"
   }, datasource.relationship && datasource.relationship.charAt(2) === "1" && _react.default.createElement("i", {

@@ -10,7 +10,8 @@ const propTypes = {
   multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
 	onClickNode: PropTypes.func,
-	onLoadData: PropTypes.func
+	onLoadData: PropTypes.func,
+	onLoadDataFinished: PropTypes.func
 };
 
 const defaultProps = {
@@ -27,8 +28,9 @@ const ChartNode = ({
   multipleSelect,
   changeHierarchy,
   onClickNode,
-  loadOnDemand,
-	onLoadNode
+	loadOnDemand,
+	onLoadData,
+	onLoadDataFinished
 }) => {
   const node = useRef();
   const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(!datasource.defaultExpanded);
@@ -149,12 +151,17 @@ const ChartNode = ({
     toggleAncestors(e.target.closest("li"));
   };
 
+	const addChildrenHandler = (children) => {
+		onLoadDataFinished(datasource, children);
+		setIsChildrenCollapsed(false)
+		setBottomEdgeExpanded(true)
+	}
+
   const bottomEdgeClickHandler = async (e) => {
     e.stopPropagation();
-    if (loadOnDemand && isChildrenCollapsed && (!datasource.children || datasource.children.length ===0 )) {
-				onLoadNode(datasource);
-			 setIsChildrenCollapsed(false)
-			 setBottomEdgeExpanded(true)
+    if (loadOnDemand && onLoadData && isChildrenCollapsed) {
+			 const children = await onLoadData(datasource);
+			 addChildrenHandler(children)
     } else {
       setIsChildrenCollapsed(!isChildrenCollapsed);
       setBottomEdgeExpanded(!bottomEdgeExpanded);
@@ -243,7 +250,6 @@ const ChartNode = ({
 	};
 
 	const setCollapse = (collapse) => {
-		console.log(collapse)
 		setIsChildrenCollapsed(collapse);
 		setBottomEdgeExpanded(!collapse)
 	}
@@ -264,7 +270,7 @@ const ChartNode = ({
         onMouseLeave={removeArrows}
       >
         {NodeTemplate ? (
-          <NodeTemplate nodeData={datasource} setCollapse={setCollapse} />
+          <NodeTemplate nodeData={datasource} setCollapse={setCollapse} addChildren={addChildrenHandler} />
         ) : (
           <>
             <div className="oc-heading">
@@ -346,7 +352,8 @@ const ChartNode = ({
               changeHierarchy={changeHierarchy}
 							onClickNode={onClickNode}
 							loadOnDemand={loadOnDemand}
-							onLoadNode={onLoadNode}
+							onLoadData={onLoadData}
+							onLoadDataFinished={onLoadDataFinished}
             />
           ))}
         </ul>

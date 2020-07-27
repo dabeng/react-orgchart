@@ -197,49 +197,36 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
     };
   }();
 
-  var onLoadDataFinished = function onLoadDataFinished(_ref3) {
-    var id = _ref3.id,
-        childrens = _ref3.childrens;
+  var onLoadDataFinished =
+  /*#__PURE__*/
+  function () {
+    var _ref4 = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee2(_ref3) {
+      var id, childrens;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              id = _ref3.id, childrens = _ref3.childrens;
+              _context2.next = 3;
+              return dsDigger.addChildren(id, childrens);
 
-    var newDs = _objectSpread({}, ds);
+            case 3:
+              setDS(_objectSpread({}, dsDigger.ds));
 
-    var treeCursor = newDs;
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      var _loop = function _loop() {
-        var parent = _step.value;
-
-        if (treeCursor.id !== parent) {
-          treeCursor = treeCursor.children.find(function (child) {
-            return child.id === parent;
-          });
+            case 4:
+            case "end":
+              return _context2.stop();
+          }
         }
-      };
+      }, _callee2);
+    }));
 
-      for (var _iterator = childrens[0].Hierarchy[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        _loop();
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    treeCursor.children = childrens;
-    setDS(newDs);
-  };
+    return function onLoadDataFinished(_x2) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
 
   var dsDigger = new _jsonDigger.default(datasource, "id", "children");
 
@@ -399,18 +386,18 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
   var changeHierarchy =
   /*#__PURE__*/
   function () {
-    var _ref4 = _asyncToGenerator(
+    var _ref5 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee2(draggedItemData, dropTargetId) {
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    regeneratorRuntime.mark(function _callee3(draggedItemData, dropTargetId) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
-              _context2.next = 2;
+              _context3.next = 2;
               return dsDigger.removeNode(draggedItemData.id);
 
             case 2:
-              _context2.next = 4;
+              _context3.next = 4;
               return dsDigger.addChildren(dropTargetId, draggedItemData);
 
             case 4:
@@ -418,14 +405,14 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
 
             case 5:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
         }
-      }, _callee2);
+      }, _callee3);
     }));
 
-    return function changeHierarchy(_x2, _x3) {
-      return _ref4.apply(this, arguments);
+    return function changeHierarchy(_x3, _x4) {
+      return _ref5.apply(this, arguments);
     };
   }();
 
