@@ -25,8 +25,8 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
-	onClickChart: PropTypes.func,
-	expandedNodes: PropTypes.array
+  onClickChart: PropTypes.func,
+  loadData: PropTypes.func
 };
 
 const defaultProps = {
@@ -39,7 +39,6 @@ const defaultProps = {
   draggable: false,
   collapsible: true,
   multipleSelect: false,
-	loadOnDemand: false,
 };
 
 const ChartContainer = forwardRef(
@@ -58,8 +57,7 @@ const ChartContainer = forwardRef(
       multipleSelect,
       onClickNode,
       onClickChart,
-			loadOnDemand,
-			onLoadData,
+			loadData,
     },
     ref
   ) => {
@@ -97,7 +95,7 @@ const ChartContainer = forwardRef(
 
     const [ds, setDS] = useState(datasource);
 
-    const onLoadDataFinished = async (datasource, children) => {
+    const onLoadData = async (datasource, children) => {
 			await dsDigger.updateNode({...datasource, children});
       setDS({ ...dsDigger.ds });
 		};
@@ -331,9 +329,8 @@ const ChartContainer = forwardRef(
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
-							loadOnDemand={loadOnDemand}
+							loadData={loadData}
 							onLoadData={onLoadData}
-							onLoadDataFinished={onLoadDataFinished}
             />
           </ul>
         </div>

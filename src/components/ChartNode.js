@@ -10,8 +10,8 @@ const propTypes = {
   multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
 	onClickNode: PropTypes.func,
+	loadData: PropTypes.func,
 	onLoadData: PropTypes.func,
-	onLoadDataFinished: PropTypes.func
 };
 
 const defaultProps = {
@@ -28,9 +28,8 @@ const ChartNode = ({
   multipleSelect,
   changeHierarchy,
   onClickNode,
-	loadOnDemand,
+	loadData,
 	onLoadData,
-	onLoadDataFinished
 }) => {
   const node = useRef();
   const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(!datasource.defaultExpanded);
@@ -152,15 +151,15 @@ const ChartNode = ({
   };
 
 	const addChildrenHandler = (children) => {
-		onLoadDataFinished(datasource, children);
+		onLoadData(datasource, children);
 		setIsChildrenCollapsed(false)
 		setBottomEdgeExpanded(true)
 	}
 
   const bottomEdgeClickHandler = async (e) => {
     e.stopPropagation();
-    if (loadOnDemand && onLoadData && isChildrenCollapsed) {
-			 const children = await onLoadData(datasource);
+    if (loadData && (!!!datasource.children)) {
+			 const children = await loadData(datasource);
 			 addChildrenHandler(children)
     } else {
       setIsChildrenCollapsed(!isChildrenCollapsed);
@@ -351,9 +350,8 @@ const ChartNode = ({
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
 							onClickNode={onClickNode}
-							loadOnDemand={loadOnDemand}
+							loadData={loadData}
 							onLoadData={onLoadData}
-							onLoadDataFinished={onLoadDataFinished}
             />
           ))}
         </ul>
