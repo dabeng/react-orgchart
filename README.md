@@ -86,7 +86,7 @@
       <td>If true, the chart can be panned.</td>
     </tr>
     <tr>
-      <td>pan</td>
+      <td>zoom</td>
       <td>boolean</td>
       <td>false</td>
       <td>If true, the chart can be zoomed.</td>
@@ -120,7 +120,7 @@
       <td>User can use this method to expand all the nodes. Sample code: orgchartRef.current.expandAllNodes()</td>
     </tr>
     <tr>
-      <td>expandAllNodes</td>
+      <td>exportTo</td>
       <td>User can use this method to export orgchart to png org pdf file. Sample code: orgchartRef.current.exportTo(filename, fileextension)</td>
     </tr>
   </tbody>
