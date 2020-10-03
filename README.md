@@ -86,7 +86,7 @@
       <td>If true, the chart can be panned.</td>
     </tr>
     <tr>
-      <td>pan</td>
+      <td>zoom</td>
       <td>boolean</td>
       <td>false</td>
       <td>If true, the chart can be zoomed.</td>
