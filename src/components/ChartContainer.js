@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
-  useImperativeHandle,
+  useImperativeHandle
 } from "react";
 import PropTypes from "prop-types";
 import { selectNodeService } from "./service";
@@ -38,7 +38,7 @@ const defaultProps = {
   chartClass: "",
   draggable: false,
   collapsible: true,
-  multipleSelect: false,
+  multipleSelect: false
 };
 
 const ChartContainer = forwardRef(
@@ -57,7 +57,7 @@ const ChartContainer = forwardRef(
       multipleSelect,
       onClickNode,
       onClickChart,
-			loadData,
+      loadData
     },
     ref
   ) => {
@@ -96,13 +96,13 @@ const ChartContainer = forwardRef(
     const [ds, setDS] = useState(datasource);
 
     const onLoadData = async (datasource, children) => {
-			await dsDigger.updateNode({...datasource, children});
+      await dsDigger.updateNode({ ...datasource, children });
       setDS({ ...dsDigger.ds });
-		};
-		
+    };
+
     const dsDigger = new JSONDigger(datasource, "id", "children");
 
-    const clickChartHandler = (event) => {
+    const clickChartHandler = event => {
       if (!event.target.closest(".oc-node")) {
         if (onClickChart) {
           onClickChart();
@@ -116,7 +116,7 @@ const ChartContainer = forwardRef(
       setCursor("default");
     };
 
-    const panHandler = (e) => {
+    const panHandler = e => {
       let newX = 0;
       let newY = 0;
       if (!e.targetTouches) {
@@ -151,7 +151,7 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const panStartHandler = (e) => {
+    const panStartHandler = e => {
       if (e.target.closest(".oc-node")) {
         setPanning(false);
         return;
@@ -184,7 +184,7 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const updateChartScale = (newScale) => {
+    const updateChartScale = newScale => {
       let matrix = [];
       let targetScale = 1;
       if (transform === "") {
@@ -209,7 +209,7 @@ const ChartContainer = forwardRef(
       }
     };
 
-    const zoomHandler = (e) => {
+    const zoomHandler = e => {
       let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
       updateChartScale(newScale);
     };
@@ -220,15 +220,15 @@ const ChartContainer = forwardRef(
       const doc =
         canvasWidth > canvasHeight
           ? new jsPDF({
-              orientation: "landscape",
-              unit: "px",
-              format: [canvasWidth, canvasHeight],
-            })
+            orientation: "landscape",
+            unit: "px",
+            format: [canvasWidth, canvasHeight]
+          })
           : new jsPDF({
-              orientation: "portrait",
-              unit: "px",
-              format: [canvasHeight, canvasWidth],
-            });
+            orientation: "portrait",
+            unit: "px",
+            format: [canvasHeight, canvasWidth]
+          });
       doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
       doc.save(exportFilename + ".pdf");
     };
@@ -271,9 +271,9 @@ const ChartContainer = forwardRef(
           onclone: function (clonedDoc) {
             clonedDoc.querySelector(".orgchart").style.background = "none";
             clonedDoc.querySelector(".orgchart").style.transform = "";
-          },
+          }
         }).then(
-          (canvas) => {
+          canvas => {
             if (exportFileextension.toLowerCase() === "pdf") {
               exportPDF(canvas, exportFilename);
             } else {
@@ -295,7 +295,7 @@ const ChartContainer = forwardRef(
           .querySelectorAll(
             ".oc-node.hidden, .oc-hierarchy.hidden, .isSiblingsCollapsed, .isAncestorsCollapsed"
           )
-          .forEach((el) => {
+          .forEach(el => {
             el.classList.remove(
               "hidden",
               "isSiblingsCollapsed",
@@ -329,8 +329,8 @@ const ChartContainer = forwardRef(
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
-							loadData={loadData}
-							onLoadData={onLoadData}
+              loadData={loadData}
+              onLoadData={onLoadData}
             />
           </ul>
         </div>

@@ -9,15 +9,15 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
-	onClickNode: PropTypes.func,
-	loadData: PropTypes.func,
-	onLoadData: PropTypes.func,
+  onClickNode: PropTypes.func,
+  loadData: PropTypes.func,
+  onLoadData: PropTypes.func,
 };
 
 const defaultProps = {
   draggable: false,
   collapsible: true,
-	multipleSelect: false,
+  multipleSelect: false,
 };
 
 const ChartNode = ({
@@ -28,14 +28,18 @@ const ChartNode = ({
   multipleSelect,
   changeHierarchy,
   onClickNode,
-	loadData,
-	onLoadData,
+  loadData,
+  onLoadData
 }) => {
   const node = useRef();
-  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(!datasource.defaultExpanded);
+  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(
+    !datasource.defaultExpanded
+  );
   const [topEdgeExpanded, setTopEdgeExpanded] = useState();
   const [rightEdgeExpanded, setRightEdgeExpanded] = useState();
-  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(datasource.defaultExpanded);
+  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(
+    datasource.defaultExpanded
+  );
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
   const [allowedDrop, setAllowedDrop] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -44,13 +48,13 @@ const ChartNode = ({
     "oc-node",
     isChildrenCollapsed ? "isChildrenCollapsed" : "",
     allowedDrop ? "allowedDrop" : "",
-    selected ? "selected" : "",
+    selected ? "selected" : ""
   ]
-    .filter((item) => item)
+    .filter(item => item)
     .join(" ");
 
   useEffect(() => {
-    const subs1 = dragNodeService.getDragInfo().subscribe((draggedInfo) => {
+    const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
       if (draggedInfo) {
         setAllowedDrop(
           !document
@@ -67,7 +71,7 @@ const ChartNode = ({
 
     const subs2 = selectNodeService
       .getSelectedNodeInfo()
-      .subscribe((selectedNodeInfo) => {
+      .subscribe(selectedNodeInfo => {
         if (selectedNodeInfo) {
           if (multipleSelect) {
             if (selectedNodeInfo.selectedNodeId === datasource.id) {
@@ -96,7 +100,7 @@ const ChartNode = ({
         : undefined;
     const isSiblingsCollapsed = Array.from(
       node.parentNode.children
-    ).some((item) => item.classList.contains("hidden"));
+    ).some(item => item.classList.contains("hidden"));
 
     setTopEdgeExpanded(!isAncestorsCollapsed);
     setRightEdgeExpanded(!isSiblingsCollapsed);
@@ -111,7 +115,7 @@ const ChartNode = ({
     setLeftEdgeExpanded(undefined);
   };
 
-  const toggleAncestors = (actionNode) => {
+  const toggleAncestors = actionNode => {
     let node = actionNode.parentNode.closest("li");
     if (!node) return;
     const isAncestorsCollapsed = node.firstChild.classList.contains("hidden");
@@ -123,7 +127,7 @@ const ChartNode = ({
       // 向下折叠，则折叠所有祖先节点以及祖先节点的兄弟节点
       const isSiblingsCollapsed = Array.from(
         actionNode.parentNode.children
-      ).some((item) => item.classList.contains("hidden"));
+      ).some(item => item.classList.contains("hidden"));
       if (!isSiblingsCollapsed) {
         toggleSiblings(actionNode);
       }
@@ -144,34 +148,34 @@ const ChartNode = ({
     }
   };
 
-  const topEdgeClickHandler = (e) => {
+  const topEdgeClickHandler = e => {
     e.stopPropagation();
     setTopEdgeExpanded(!topEdgeExpanded);
     toggleAncestors(e.target.closest("li"));
   };
 
-	const addChildrenHandler = (children) => {
-		onLoadData(datasource, children);
-		setIsChildrenCollapsed(false)
-		setBottomEdgeExpanded(true)
-	}
+  const addChildrenHandler = children => {
+    onLoadData(datasource, children);
+    setIsChildrenCollapsed(false);
+    setBottomEdgeExpanded(true);
+  };
 
-  const bottomEdgeClickHandler = async (e) => {
+  const bottomEdgeClickHandler = async e => {
     e.stopPropagation();
-    if (loadData && (!!!datasource.children)) {
-			 const children = await loadData(datasource);
-			 addChildrenHandler(children)
+    if (loadData && !!!datasource.children) {
+      const children = await loadData(datasource);
+      addChildrenHandler(children);
     } else {
       setIsChildrenCollapsed(!isChildrenCollapsed);
       setBottomEdgeExpanded(!bottomEdgeExpanded);
     }
   };
 
-  const toggleSiblings = (actionNode) => {
+  const toggleSiblings = actionNode => {
     let node = actionNode.previousSibling;
     const isSiblingsCollapsed = Array.from(
       actionNode.parentNode.children
-    ).some((item) => item.classList.contains("hidden"));
+    ).some(item => item.classList.contains("hidden"));
     actionNode.classList.toggle("isSiblingsCollapsed", !isSiblingsCollapsed);
     // 先处理同级的兄弟节点
     while (node) {
@@ -200,18 +204,18 @@ const ChartNode = ({
     }
   };
 
-  const hEdgeClickHandler = (e) => {
+  const hEdgeClickHandler = e => {
     e.stopPropagation();
     setLeftEdgeExpanded(!leftEdgeExpanded);
     setRightEdgeExpanded(!rightEdgeExpanded);
     toggleSiblings(e.target.closest("li"));
   };
 
-  const filterAllowedDropNodes = (id) => {
+  const filterAllowedDropNodes = id => {
     dragNodeService.sendDragInfo(id);
   };
 
-  const clickNodeHandler = (event) => {
+  const clickNodeHandler = event => {
     if (onClickNode) {
       onClickNode(datasource);
     }
@@ -219,7 +223,7 @@ const ChartNode = ({
     selectNodeService.sendSelectedNodeInfo(datasource.id);
   };
 
-  const dragstartHandler = (event) => {
+  const dragstartHandler = event => {
     const copyDS = { ...datasource };
     delete copyDS.relationship;
     event.dataTransfer.setData("text/plain", JSON.stringify(copyDS));
@@ -227,7 +231,7 @@ const ChartNode = ({
     filterAllowedDropNodes(node.current.id);
   };
 
-  const dragoverHandler = (event) => {
+  const dragoverHandler = event => {
     // prevent default to allow drop
     event.preventDefault();
   };
@@ -237,7 +241,7 @@ const ChartNode = ({
     dragNodeService.clearDragInfo();
   };
 
-  const dropHandler = (event) => {
+  const dropHandler = event => {
     if (!event.currentTarget.classList.contains("allowedDrop")) {
       return;
     }
@@ -246,12 +250,12 @@ const ChartNode = ({
       JSON.parse(event.dataTransfer.getData("text/plain")),
       event.currentTarget.id
     );
-	};
+  };
 
-	const setCollapse = (collapse) => {
-		setIsChildrenCollapsed(collapse);
-		setBottomEdgeExpanded(!collapse)
-	}
+  const setCollapse = collapse => {
+    setIsChildrenCollapsed(collapse);
+    setBottomEdgeExpanded(!collapse);
+  };
 
   return (
     <li className="oc-hierarchy">
@@ -269,30 +273,33 @@ const ChartNode = ({
         onMouseLeave={removeArrows}
       >
         {NodeTemplate ? (
-          <NodeTemplate nodeData={datasource} setCollapse={setCollapse} addChildren={addChildrenHandler} />
+          <NodeTemplate
+            nodeData={datasource}
+            setCollapse={setCollapse}
+            addChildren={addChildrenHandler}
+          />
         ) : (
-          <>
-            <div className="oc-heading">
-              {datasource.relationship &&
-                datasource.relationship.charAt(2) === "1" && (
-                  <i className="oci oci-leader oc-symbol" />
-                )}
-              {datasource.name}
-            </div>
-            <div className="oc-content">{datasource.title}</div>
-          </>
-        )}
+            <>
+              <div className="oc-heading">
+                {datasource.relationship &&
+                  datasource.relationship.charAt(2) === "1" && (
+                    <i className="oci oci-leader oc-symbol" />
+                  )}
+                {datasource.name}
+              </div>
+              <div className="oc-content">{datasource.title}</div>
+            </>
+          )}
         {collapsible &&
           datasource.relationship &&
           datasource.relationship.charAt(0) === "1" && (
             <i
-              className={`oc-edge verticalEdge topEdge oci ${
-                topEdgeExpanded === undefined
-                  ? ""
-                  : topEdgeExpanded
+              className={`oc-edge verticalEdge topEdge oci ${topEdgeExpanded === undefined
+                ? ""
+                : topEdgeExpanded
                   ? "oci-chevron-down"
                   : "oci-chevron-up"
-              }`}
+                }`}
               onClick={topEdgeClickHandler}
             />
           )}
@@ -301,23 +308,21 @@ const ChartNode = ({
           datasource.relationship.charAt(1) === "1" && (
             <>
               <i
-                className={`oc-edge horizontalEdge rightEdge oci ${
-                  rightEdgeExpanded === undefined
-                    ? ""
-                    : rightEdgeExpanded
+                className={`oc-edge horizontalEdge rightEdge oci ${rightEdgeExpanded === undefined
+                  ? ""
+                  : rightEdgeExpanded
                     ? "oci-chevron-left"
                     : "oci-chevron-right"
-                }`}
+                  }`}
                 onClick={hEdgeClickHandler}
               />
               <i
-                className={`oc-edge horizontalEdge leftEdge oci ${
-                  leftEdgeExpanded === undefined
-                    ? ""
-                    : leftEdgeExpanded
+                className={`oc-edge horizontalEdge leftEdge oci ${leftEdgeExpanded === undefined
+                  ? ""
+                  : leftEdgeExpanded
                     ? "oci-chevron-right"
                     : "oci-chevron-left"
-                }`}
+                  }`}
                 onClick={hEdgeClickHandler}
               />
             </>
@@ -326,20 +331,19 @@ const ChartNode = ({
           datasource.relationship &&
           datasource.relationship.charAt(2) === "1" && (
             <i
-              className={`oc-edge verticalEdge bottomEdge oci ${
-                bottomEdgeExpanded === undefined
-                  ? ""
-                  : bottomEdgeExpanded
+              className={`oc-edge verticalEdge bottomEdge oci ${bottomEdgeExpanded === undefined
+                ? ""
+                : bottomEdgeExpanded
                   ? "oci-chevron-up"
                   : "oci-chevron-down"
-              }`}
+                }`}
               onClick={bottomEdgeClickHandler}
             />
           )}
       </div>
       {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>
-          {datasource.children.map((node) => (
+          {datasource.children.map(node => (
             <ChartNode
               datasource={node}
               NodeTemplate={NodeTemplate}
@@ -349,9 +353,9 @@ const ChartNode = ({
               collapsible={collapsible}
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
-							onClickNode={onClickNode}
-							loadData={loadData}
-							onLoadData={onLoadData}
+              onClickNode={onClickNode}
+              loadData={loadData}
+              onLoadData={onLoadData}
             />
           ))}
         </ul>
