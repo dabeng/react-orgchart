@@ -200,7 +200,7 @@ const ChartNode = ({
 
   const clickNodeHandler = event => {
     if (onClickNode) {
-      onClickNode(datasource);
+      onClickNode(event, datasource);
     }
 
     selectNodeService.sendSelectedNodeInfo(datasource.id);
