@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { dragNodeService, selectNodeService } from "./service";
+import "./ChartNode.css";
 
 const propTypes = {
   datasource: PropTypes.object,
@@ -17,7 +18,7 @@ const propTypes = {
 const defaultProps = {
   draggable: false,
   collapsible: true,
-  multipleSelect: false,
+  multipleSelect: false
 };
 
 const ChartNode = ({
@@ -32,14 +33,10 @@ const ChartNode = ({
   onLoadData
 }) => {
   const node = useRef();
-  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(
-    !datasource.defaultExpanded
-  );
+  const [isChildrenCollapsed, setIsChildrenCollapsed] = useState(!datasource.defaultExpanded);
   const [topEdgeExpanded, setTopEdgeExpanded] = useState();
   const [rightEdgeExpanded, setRightEdgeExpanded] = useState();
-  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(
-    datasource.defaultExpanded
-  );
+  const [bottomEdgeExpanded, setBottomEdgeExpanded] = useState(datasource.defaultExpanded);
   const [leftEdgeExpanded, setLeftEdgeExpanded] = useState();
   const [allowedDrop, setAllowedDrop] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -91,7 +88,7 @@ const ChartNode = ({
     };
   }, [multipleSelect, datasource]);
 
-  const addArrows = (e) => {
+  const addArrows = e => {
     const node = e.target.closest("li");
     const parent = node.parentNode.closest("li");
     const isAncestorsCollapsed =
@@ -295,10 +292,10 @@ const ChartNode = ({
           datasource.relationship.charAt(0) === "1" && (
             <i
               className={`oc-edge verticalEdge topEdge oci ${topEdgeExpanded === undefined
-                ? ""
-                : topEdgeExpanded
-                  ? "oci-chevron-down"
-                  : "oci-chevron-up"
+                  ? ""
+                  : topEdgeExpanded
+                    ? "oci-chevron-down"
+                    : "oci-chevron-up"
                 }`}
               onClick={topEdgeClickHandler}
             />
@@ -308,20 +305,22 @@ const ChartNode = ({
           datasource.relationship.charAt(1) === "1" && (
             <>
               <i
-                className={`oc-edge horizontalEdge rightEdge oci ${rightEdgeExpanded === undefined
-                  ? ""
-                  : rightEdgeExpanded
-                    ? "oci-chevron-left"
-                    : "oci-chevron-right"
+                className={`oc-edge horizontalEdge rightEdge oci
+                 ${rightEdgeExpanded === undefined
+                    ? ""
+                    : rightEdgeExpanded
+                      ? "oci-chevron-left"
+                      : "oci-chevron-right"
                   }`}
                 onClick={hEdgeClickHandler}
               />
               <i
-                className={`oc-edge horizontalEdge leftEdge oci ${leftEdgeExpanded === undefined
-                  ? ""
-                  : leftEdgeExpanded
-                    ? "oci-chevron-right"
-                    : "oci-chevron-left"
+                className={`oc-edge horizontalEdge leftEdge oci
+                 ${leftEdgeExpanded === undefined
+                    ? ""
+                    : leftEdgeExpanded
+                      ? "oci-chevron-right"
+                      : "oci-chevron-left"
                   }`}
                 onClick={hEdgeClickHandler}
               />
@@ -331,11 +330,12 @@ const ChartNode = ({
           datasource.relationship &&
           datasource.relationship.charAt(2) === "1" && (
             <i
-              className={`oc-edge verticalEdge bottomEdge oci ${bottomEdgeExpanded === undefined
-                ? ""
-                : bottomEdgeExpanded
-                  ? "oci-chevron-up"
-                  : "oci-chevron-down"
+              className={`oc-edge verticalEdge bottomEdge oci
+               ${bottomEdgeExpanded === undefined
+                  ? ""
+                  : bottomEdgeExpanded
+                    ? "oci-chevron-up"
+                    : "oci-chevron-down"
                 }`}
               onClick={bottomEdgeClickHandler}
             />

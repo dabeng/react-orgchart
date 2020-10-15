@@ -8,8 +8,8 @@ import ExportChart from "./export-chart/export-chart";
 import DragDropChart from "./drag-drop-chart/drag-drop-chart";
 import EditChart from "./edit-chart/edit-chart";
 import EditNode from "./edit-node/edit-node";
+import lazyloadChart from "./lazyload/lazyload-chart";
 import "./App.css";
-import lazyloadChart from "./lazyload";
 
 const App = () => {
   return (

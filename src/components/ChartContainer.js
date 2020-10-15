@@ -11,6 +11,7 @@ import JSONDigger from "json-digger";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ChartNode from "./ChartNode";
+import "./ChartContainer.css";
 
 const propTypes = {
   datasource: PropTypes.object.isRequired,
@@ -61,10 +62,10 @@ const ChartContainer = forwardRef(
     },
     ref
   ) => {
-    const container = useRef();
+
+		const container = useRef();
     const chart = useRef();
     const downloadButton = useRef();
-
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
     const [transform, setTransform] = useState("");
@@ -78,11 +79,11 @@ const ChartContainer = forwardRef(
       if (data.isLeaf === undefined) {
         data.isLeaf = true;
       }
-      data.relationship =
-        flags +
-        ((data.children && data.children.length > 0) || !data.isLeaf ? 1 : 0);
-      if (data.children && data.children.length > 0) {
-        data.children.forEach(function (item) {
+
+      data.relationship = flags + ((data.children && !!data.children.length) || !data.isLeaf ? 1 : 0);
+
+      if (data.children) {
+        data.children.forEach(function(item) {
           attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
         });
       }
@@ -220,14 +221,14 @@ const ChartContainer = forwardRef(
       const doc =
         canvasWidth > canvasHeight
           ? new jsPDF({
-            orientation: "landscape",
-            unit: "px",
-            format: [canvasWidth, canvasHeight]
+              orientation: "landscape",
+              unit: "px",
+              format: [canvasWidth, canvasHeight]
           })
           : new jsPDF({
-            orientation: "portrait",
-            unit: "px",
-            format: [canvasHeight, canvasWidth]
+              orientation: "portrait",
+              unit: "px",
+              format: [canvasHeight, canvasWidth]
           });
       doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
       doc.save(exportFilename + ".pdf");
@@ -268,7 +269,7 @@ const ChartContainer = forwardRef(
         html2canvas(chart.current, {
           width: chart.current.clientWidth,
           height: chart.current.clientHeight,
-          onclone: function (clonedDoc) {
+          onclone: function(clonedDoc) {
             clonedDoc.querySelector(".orgchart").style.background = "none";
             clonedDoc.querySelector(".orgchart").style.transform = "";
           }

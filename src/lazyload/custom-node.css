@@ -1,4 +1,4 @@
-.orgchart.myChart {
+.orgchart.lazyload-chart {
   background-image: linear-gradient(
       90deg,
       rgba(33, 90, 136, 0.15) 10%,
@@ -7,30 +7,30 @@
     linear-gradient(rgba(33, 90, 136, 0.15) 10%, rgba(0, 0, 0, 0) 10%) !important;
 }
 
-.orgchart.myChart > ul > li > ul li::before {
-  border-top-color: #215a88;
+.orgchart.lazyload-chart > ul > li > ul li::before {
+  border-top-color: #F7C374;
 }
 
-.orgchart.myChart > ul > li > ul li .oc-node::before,
-.orgchart.myChart ul li .oc-node:not(:only-child)::after {
-  background-color: #215a88;
+.orgchart.lazyload-chart > ul > li > ul li .oc-node::before,
+.orgchart.lazyload-chart ul li .oc-node:not(:only-child)::after {
+  background-color: #F7C374;
 }
 
-.orgchart.myChart .oc-node .position {
+.orgchart.lazyload-chart .oc-node .position {
   box-sizing: border-box;
-  background-color: #215a88;
+  background-color: #F7C374;
   color: #fff;
   width: 130px;
   height: 65px;
   padding: 2px;
 }
 
-.orgchart.myChart .oc-node .fullname {
+.orgchart.lazyload-chart .oc-node .fullname {
   box-sizing: border-box;
   color: #215a88;
   background-color: #fff;
   width: 130px;
   height: 65px;
   padding: 2px;
-  border: 1px solid #215a88;
+  border: 1px solid#F7C374;
 }
