@@ -13,6 +13,8 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _service = require("./service");
 
+require("./ChartNode.css");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -53,6 +55,7 @@ var propTypes = {
   multipleSelect: _propTypes.default.bool,
   changeHierarchy: _propTypes.default.func,
   onClickNode: _propTypes.default.func,
+  loadData: _propTypes.default.func,
   onLoadData: _propTypes.default.func
 };
 var defaultProps = {
@@ -69,8 +72,8 @@ var ChartNode = function ChartNode(_ref) {
       multipleSelect = _ref.multipleSelect,
       changeHierarchy = _ref.changeHierarchy,
       onClickNode = _ref.onClickNode,
-      loadOnDemand = _ref.loadOnDemand,
-      onLoadNode = _ref.onLoadNode;
+      loadData = _ref.loadData,
+      onLoadData = _ref.onLoadData;
   var node = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(!datasource.defaultExpanded),
@@ -197,28 +200,44 @@ var ChartNode = function ChartNode(_ref) {
     toggleAncestors(e.target.closest("li"));
   };
 
+  var addChildrenHandler = function addChildrenHandler(children) {
+    onLoadData(datasource, children);
+    setIsChildrenCollapsed(false);
+    setBottomEdgeExpanded(true);
+  };
+
   var bottomEdgeClickHandler =
   /*#__PURE__*/
   function () {
     var _ref2 = _asyncToGenerator(
     /*#__PURE__*/
     regeneratorRuntime.mark(function _callee(e) {
+      var children;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               e.stopPropagation();
 
-              if (loadOnDemand && isChildrenCollapsed && (!datasource.children || datasource.children.length === 0)) {
-                onLoadNode(datasource);
-                setIsChildrenCollapsed(false);
-                setBottomEdgeExpanded(true);
-              } else {
-                setIsChildrenCollapsed(!isChildrenCollapsed);
-                setBottomEdgeExpanded(!bottomEdgeExpanded);
+              if (!(loadData && !!!datasource.children)) {
+                _context.next = 8;
+                break;
               }
 
-            case 2:
+              _context.next = 4;
+              return loadData(datasource);
+
+            case 4:
+              children = _context.sent;
+              addChildrenHandler(children);
+              _context.next = 10;
+              break;
+
+            case 8:
+              setIsChildrenCollapsed(!isChildrenCollapsed);
+              setBottomEdgeExpanded(!bottomEdgeExpanded);
+
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -337,7 +356,8 @@ var ChartNode = function ChartNode(_ref) {
     onMouseLeave: removeArrows
   }, NodeTemplate ? _react.default.createElement(NodeTemplate, {
     nodeData: datasource,
-    setCollapse: setCollapse
+    setCollapse: setCollapse,
+    addChildren: addChildrenHandler
   }) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
     className: "oc-heading"
   }, datasource.relationship && datasource.relationship.charAt(2) === "1" && _react.default.createElement("i", {
@@ -348,13 +368,13 @@ var ChartNode = function ChartNode(_ref) {
     className: "oc-edge verticalEdge topEdge oci ".concat(topEdgeExpanded === undefined ? "" : topEdgeExpanded ? "oci-chevron-down" : "oci-chevron-up"),
     onClick: topEdgeClickHandler
   }), collapsible && datasource.relationship && datasource.relationship.charAt(1) === "1" && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("i", {
-    className: "oc-edge horizontalEdge rightEdge oci ".concat(rightEdgeExpanded === undefined ? "" : rightEdgeExpanded ? "oci-chevron-left" : "oci-chevron-right"),
+    className: "oc-edge horizontalEdge rightEdge oci\n                 ".concat(rightEdgeExpanded === undefined ? "" : rightEdgeExpanded ? "oci-chevron-left" : "oci-chevron-right"),
     onClick: hEdgeClickHandler
   }), _react.default.createElement("i", {
-    className: "oc-edge horizontalEdge leftEdge oci ".concat(leftEdgeExpanded === undefined ? "" : leftEdgeExpanded ? "oci-chevron-right" : "oci-chevron-left"),
+    className: "oc-edge horizontalEdge leftEdge oci\n                 ".concat(leftEdgeExpanded === undefined ? "" : leftEdgeExpanded ? "oci-chevron-right" : "oci-chevron-left"),
     onClick: hEdgeClickHandler
   })), collapsible && datasource.relationship && datasource.relationship.charAt(2) === "1" && _react.default.createElement("i", {
-    className: "oc-edge verticalEdge bottomEdge oci ".concat(bottomEdgeExpanded === undefined ? "" : bottomEdgeExpanded ? "oci-chevron-up" : "oci-chevron-down"),
+    className: "oc-edge verticalEdge bottomEdge oci\n               ".concat(bottomEdgeExpanded === undefined ? "" : bottomEdgeExpanded ? "oci-chevron-up" : "oci-chevron-down"),
     onClick: bottomEdgeClickHandler
   })), datasource.children && datasource.children.length > 0 && _react.default.createElement("ul", {
     className: isChildrenCollapsed ? "hidden" : ""
@@ -369,8 +389,8 @@ var ChartNode = function ChartNode(_ref) {
       multipleSelect: multipleSelect,
       changeHierarchy: changeHierarchy,
       onClickNode: onClickNode,
-      loadOnDemand: loadOnDemand,
-      onLoadNode: onLoadNode
+      loadData: loadData,
+      onLoadData: onLoadData
     });
   })));
 };
