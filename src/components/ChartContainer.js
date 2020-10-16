@@ -63,7 +63,7 @@ const ChartContainer = forwardRef(
     ref
   ) => {
 
-		const container = useRef();
+    const container = useRef();
     const chart = useRef();
     const downloadButton = useRef();
     const [startX, setStartX] = useState(0);

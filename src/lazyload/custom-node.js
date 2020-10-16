@@ -10,9 +10,9 @@ const MyNode = ({ nodeData, addChildren, setCollapse}) => {
 
 	return (
 		<div>
-      <div className="position">{nodeData.title}</div>
-      <div className="fullname">{nodeData.name}</div>
-    </div>
+			<div className="position">{nodeData.title}</div>
+			<div className="fullname">{nodeData.name}</div>
+		</div>
 	);
 };
 
