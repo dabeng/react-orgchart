@@ -19,13 +19,13 @@
 
 ```js
 type node = {
-	id: string
-	isLeaf?: boolean
-	defaultExpanded?: boolean
-	children: node[]
-	// you can add another fields to node.
-};
+  id: string
+  isLeaf?: boolean
+  defaultExpanded?: boolean
+  children: node[]
 ```
+
+you can add other fields to the model.
 
 
 ## Props
@@ -117,7 +117,7 @@ type node = {
       <td>0.5</td>
       <td>User can zoom the chart at different scales(0.5~7).</td>
     </tr>
-		<tr>
+    <tr>
       <td>loadData</td>
       <td>function</td>
       <td></td>
