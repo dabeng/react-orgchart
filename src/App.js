@@ -36,7 +36,6 @@ const App = () => {
         <Route path="/drag-drop-chart" component={DragDropChart} />
         <Route path="/edit-chart" component={EditChart} />
         <Route path="/edit-node" component={EditNode} />
-
       </div>
     </Router>
   );
