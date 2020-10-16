@@ -1,6 +1,6 @@
 {
-  "name": "react-orgchart-lazyload",
-  "version": "1.0.4",
+  "name": "@dabeng/react-orgchart",
+  "version": "1.1.0",
   "main": "./dist/ChartContainer.js",
   "files": [
     "dist",
@@ -8,7 +8,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/arminyahya/react-orgchart"
+    "url": "https://github.com/dabeng/react-orgchart.git"
   },
   "keywords": [
     "react",
@@ -20,9 +20,12 @@
     "tree-like",
     "tree-view"
   ],
-  "author": "armin yahya",
+  "author": "dabeng <dabeng413@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/arminyahya/react-orgchart#readme",
+  "bugs": {
+    "url": "https://github.com/dabeng/react-orgchart/issues"
+  },
+  "homepage": "https://github.com/dabeng/react-orgchart#readme",
   "babel": {
     "presets": [
       "@babel/preset-env",
@@ -56,7 +59,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "publish:npm": "mkdir dist &&  babel src/components -d dist --copy-files && npm publish"
+    "publish:npm": "rm -rf dist && mkdir dist &&  babel src/components -d dist --copy-files"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -15,6 +15,19 @@
 - Allows user to customize the internal structure for every node
 - Allows user to fetch nodes from server and add to chart(lazyload)
 
+## Chart Node
+
+```js
+type node = {
+	id: string
+	isLeaf?: boolean
+	defaultExpanded?: boolean
+	children: node[]
+	// you can add another fields to node.
+};
+```
+
+
 ## Props
 <table>
   <thead>

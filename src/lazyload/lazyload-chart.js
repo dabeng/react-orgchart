@@ -20,7 +20,6 @@ const lazyloadChart = () => {
 		id: "n1",
 		name: "Lao Lao",
 		title: "general manager",
-		isLeaf: false
 	};
 
 
