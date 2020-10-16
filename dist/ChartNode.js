@@ -27,10 +27,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -54,9 +50,7 @@ var propTypes = {
   collapsible: _propTypes.default.bool,
   multipleSelect: _propTypes.default.bool,
   changeHierarchy: _propTypes.default.func,
-  onClickNode: _propTypes.default.func,
-  loadData: _propTypes.default.func,
-  onLoadData: _propTypes.default.func
+  onClickNode: _propTypes.default.func
 };
 var defaultProps = {
   draggable: false,
@@ -71,12 +65,10 @@ var ChartNode = function ChartNode(_ref) {
       collapsible = _ref.collapsible,
       multipleSelect = _ref.multipleSelect,
       changeHierarchy = _ref.changeHierarchy,
-      onClickNode = _ref.onClickNode,
-      loadData = _ref.loadData,
-      onLoadData = _ref.onLoadData;
+      onClickNode = _ref.onClickNode;
   var node = (0, _react.useRef)();
 
-  var _useState = (0, _react.useState)(!datasource.defaultExpanded),
+  var _useState = (0, _react.useState)(false),
       _useState2 = _slicedToArray(_useState, 2),
       isChildrenCollapsed = _useState2[0],
       setIsChildrenCollapsed = _useState2[1];
@@ -91,7 +83,7 @@ var ChartNode = function ChartNode(_ref) {
       rightEdgeExpanded = _useState6[0],
       setRightEdgeExpanded = _useState6[1];
 
-  var _useState7 = (0, _react.useState)(datasource.defaultExpanded),
+  var _useState7 = (0, _react.useState)(),
       _useState8 = _slicedToArray(_useState7, 2),
       bottomEdgeExpanded = _useState8[0],
       setBottomEdgeExpanded = _useState8[1];
@@ -200,55 +192,11 @@ var ChartNode = function ChartNode(_ref) {
     toggleAncestors(e.target.closest("li"));
   };
 
-  var addChildrenHandler = function addChildrenHandler(children) {
-    onLoadData(datasource, children);
-    setIsChildrenCollapsed(false);
-    setBottomEdgeExpanded(true);
+  var bottomEdgeClickHandler = function bottomEdgeClickHandler(e) {
+    e.stopPropagation();
+    setIsChildrenCollapsed(!isChildrenCollapsed);
+    setBottomEdgeExpanded(!bottomEdgeExpanded);
   };
-
-  var bottomEdgeClickHandler =
-  /*#__PURE__*/
-  function () {
-    var _ref2 = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee(e) {
-      var children;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              e.stopPropagation();
-
-              if (!(loadData && !!!datasource.children)) {
-                _context.next = 8;
-                break;
-              }
-
-              _context.next = 4;
-              return loadData(datasource);
-
-            case 4:
-              children = _context.sent;
-              addChildrenHandler(children);
-              _context.next = 10;
-              break;
-
-            case 8:
-              setIsChildrenCollapsed(!isChildrenCollapsed);
-              setBottomEdgeExpanded(!bottomEdgeExpanded);
-
-            case 10:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
-
-    return function bottomEdgeClickHandler(_x) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
 
   var toggleSiblings = function toggleSiblings(actionNode) {
     var node = actionNode.previousSibling;
@@ -335,11 +283,6 @@ var ChartNode = function ChartNode(_ref) {
     changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
   };
 
-  var setCollapse = function setCollapse(collapse) {
-    setIsChildrenCollapsed(collapse);
-    setBottomEdgeExpanded(!collapse);
-  };
-
   return _react.default.createElement("li", {
     className: "oc-hierarchy"
   }, _react.default.createElement("div", {
@@ -355,9 +298,7 @@ var ChartNode = function ChartNode(_ref) {
     onMouseEnter: addArrows,
     onMouseLeave: removeArrows
   }, NodeTemplate ? _react.default.createElement(NodeTemplate, {
-    nodeData: datasource,
-    setCollapse: setCollapse,
-    addChildren: addChildrenHandler
+    nodeData: datasource
   }) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
     className: "oc-heading"
   }, datasource.relationship && datasource.relationship.charAt(2) === "1" && _react.default.createElement("i", {
@@ -368,13 +309,13 @@ var ChartNode = function ChartNode(_ref) {
     className: "oc-edge verticalEdge topEdge oci ".concat(topEdgeExpanded === undefined ? "" : topEdgeExpanded ? "oci-chevron-down" : "oci-chevron-up"),
     onClick: topEdgeClickHandler
   }), collapsible && datasource.relationship && datasource.relationship.charAt(1) === "1" && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("i", {
-    className: "oc-edge horizontalEdge rightEdge oci\n                 ".concat(rightEdgeExpanded === undefined ? "" : rightEdgeExpanded ? "oci-chevron-left" : "oci-chevron-right"),
+    className: "oc-edge horizontalEdge rightEdge oci ".concat(rightEdgeExpanded === undefined ? "" : rightEdgeExpanded ? "oci-chevron-left" : "oci-chevron-right"),
     onClick: hEdgeClickHandler
   }), _react.default.createElement("i", {
-    className: "oc-edge horizontalEdge leftEdge oci\n                 ".concat(leftEdgeExpanded === undefined ? "" : leftEdgeExpanded ? "oci-chevron-right" : "oci-chevron-left"),
+    className: "oc-edge horizontalEdge leftEdge oci ".concat(leftEdgeExpanded === undefined ? "" : leftEdgeExpanded ? "oci-chevron-right" : "oci-chevron-left"),
     onClick: hEdgeClickHandler
   })), collapsible && datasource.relationship && datasource.relationship.charAt(2) === "1" && _react.default.createElement("i", {
-    className: "oc-edge verticalEdge bottomEdge oci\n               ".concat(bottomEdgeExpanded === undefined ? "" : bottomEdgeExpanded ? "oci-chevron-up" : "oci-chevron-down"),
+    className: "oc-edge verticalEdge bottomEdge oci ".concat(bottomEdgeExpanded === undefined ? "" : bottomEdgeExpanded ? "oci-chevron-up" : "oci-chevron-down"),
     onClick: bottomEdgeClickHandler
   })), datasource.children && datasource.children.length > 0 && _react.default.createElement("ul", {
     className: isChildrenCollapsed ? "hidden" : ""
@@ -388,9 +329,7 @@ var ChartNode = function ChartNode(_ref) {
       collapsible: collapsible,
       multipleSelect: multipleSelect,
       changeHierarchy: changeHierarchy,
-      onClickNode: onClickNode,
-      loadData: loadData,
-      onLoadData: onLoadData
+      onClickNode: onClickNode
     });
   })));
 };

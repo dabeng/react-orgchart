@@ -21,6 +21,8 @@ var _jspdf = _interopRequireDefault(require("jspdf"));
 
 var _ChartNode = _interopRequireDefault(require("./ChartNode"));
 
+require("./ChartContainer.css");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -58,9 +60,7 @@ var propTypes = {
   collapsible: _propTypes.default.bool,
   multipleSelect: _propTypes.default.bool,
   onClickNode: _propTypes.default.func,
-  onClickChart: _propTypes.default.func,
-  onLoadData: _propTypes.default.func,
-  expandedNodes: _propTypes.default.array
+  onClickChart: _propTypes.default.func
 };
 var defaultProps = {
   pan: false,
@@ -71,8 +71,7 @@ var defaultProps = {
   chartClass: "",
   draggable: false,
   collapsible: true,
-  multipleSelect: false,
-  loadOnDemand: false
+  multipleSelect: false
 };
 var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
   var datasource = _ref.datasource,
@@ -87,10 +86,7 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
       collapsible = _ref.collapsible,
       multipleSelect = _ref.multipleSelect,
       onClickNode = _ref.onClickNode,
-      onClickChart = _ref.onClickChart,
-      loadOnDemand = _ref.loadOnDemand,
-      onLoadData = _ref.onLoadData,
-      expandedNodes = _ref.expandedNodes;
+      onClickChart = _ref.onClickChart;
   var container = (0, _react.useRef)();
   var chart = (0, _react.useRef)();
   var downloadButton = (0, _react.useRef)();
@@ -136,13 +132,9 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
       setDownload = _useState16[1];
 
   var attachRel = function attachRel(data, flags) {
-    if (data.isLeaf === undefined) {
-      data.isLeaf = true;
-    }
+    data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
 
-    data.relationship = flags + (data.children && data.children.length > 0 || !data.isLeaf ? 1 : 0);
-
-    if (data.children && data.children.length > 0) {
+    if (data.children) {
       data.children.forEach(function (item) {
         attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
       });
@@ -151,83 +143,14 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
     return data;
   };
 
-  (0, _react.useEffect)(function () {
-    setDS(datasource);
-  }, [datasource]);
-
   var _useState17 = (0, _react.useState)(datasource),
       _useState18 = _slicedToArray(_useState17, 2),
       ds = _useState18[0],
       setDS = _useState18[1];
 
-  var onLoadNode =
-  /*#__PURE__*/
-  function () {
-    var _ref2 = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee(node) {
-      var childrens;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.next = 2;
-              return onLoadData(node);
-
-            case 2:
-              childrens = _context.sent;
-              childrens.map(function (ch) {
-                ch.Hierarchy = node.Hierarchy ? node.Hierarchy.concat([node.id]) : [node.id];
-              });
-              onLoadDataFinished({
-                id: node.id,
-                childrens: childrens
-              });
-
-            case 5:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
-
-    return function onLoadNode(_x) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
-
-  var onLoadDataFinished =
-  /*#__PURE__*/
-  function () {
-    var _ref4 = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee2(_ref3) {
-      var id, childrens;
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              id = _ref3.id, childrens = _ref3.childrens;
-              _context2.next = 3;
-              return dsDigger.addChildren(id, childrens);
-
-            case 3:
-              setDS(_objectSpread({}, dsDigger.ds));
-
-            case 4:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2);
-    }));
-
-    return function onLoadDataFinished(_x2) {
-      return _ref4.apply(this, arguments);
-    };
-  }();
-
+  (0, _react.useEffect)(function () {
+    setDS(datasource);
+  }, [datasource]);
   var dsDigger = new _jsonDigger.default(datasource, "id", "children");
 
   var clickChartHandler = function clickChartHandler(event) {
@@ -386,18 +309,18 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
   var changeHierarchy =
   /*#__PURE__*/
   function () {
-    var _ref5 = _asyncToGenerator(
+    var _ref2 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee3(draggedItemData, dropTargetId) {
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    regeneratorRuntime.mark(function _callee(draggedItemData, dropTargetId) {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context.prev = _context.next) {
             case 0:
-              _context3.next = 2;
+              _context.next = 2;
               return dsDigger.removeNode(draggedItemData.id);
 
             case 2:
-              _context3.next = 4;
+              _context.next = 4;
               return dsDigger.addChildren(dropTargetId, draggedItemData);
 
             case 4:
@@ -405,14 +328,14 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
 
             case 5:
             case "end":
-              return _context3.stop();
+              return _context.stop();
           }
         }
-      }, _callee3);
+      }, _callee);
     }));
 
-    return function changeHierarchy(_x3, _x4) {
-      return _ref5.apply(this, arguments);
+    return function changeHierarchy(_x, _x2) {
+      return _ref2.apply(this, arguments);
     };
   }();
 
@@ -478,9 +401,7 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
     collapsible: collapsible,
     multipleSelect: multipleSelect,
     changeHierarchy: changeHierarchy,
-    onClickNode: onClickNode,
-    loadOnDemand: loadOnDemand,
-    onLoadNode: onLoadNode
+    onClickNode: onClickNode
   }))), _react.default.createElement("a", {
     className: "oc-download-btn hidden",
     ref: downloadButton,
