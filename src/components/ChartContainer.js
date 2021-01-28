@@ -26,7 +26,8 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
-  onClickChart: PropTypes.func
+  onClickChart: PropTypes.func,
+  onZoomChange: PropTypes.func
 };
 
 const defaultProps = {
@@ -56,7 +57,8 @@ const ChartContainer = forwardRef(
       collapsible,
       multipleSelect,
       onClickNode,
-      onClickChart
+      onClickChart,
+      onZoomChange
     },
     ref
   ) => {
@@ -186,6 +188,7 @@ const ChartContainer = forwardRef(
             matrix[0] = "matrix(" + targetScale;
             matrix[3] = targetScale;
             setTransform(matrix.join(","));
+            onZoomChange && onZoomChange(newScale);
           }
         } else {
           targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
@@ -193,6 +196,7 @@ const ChartContainer = forwardRef(
             matrix[0] = "matrix3d(" + targetScale;
             matrix[5] = targetScale;
             setTransform(matrix.join(","));
+            onZoomChange && onZoomChange(newScale);
           }
         }
       }
@@ -291,6 +295,15 @@ const ChartContainer = forwardRef(
               "isAncestorsCollapsed"
             );
           });
+      },
+      setZoom: (newScale) => {
+        if (newScale < zoomoutLimit) {
+          newScale = zoomoutLimit
+        }
+        if (newScale > zoominLimit) {
+          newScale = zoominLimit;
+        }
+        setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
       }
     }));
 
