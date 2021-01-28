@@ -264,7 +264,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
           matrix[0] = "matrix(" + targetScale;
           matrix[3] = targetScale;
           setTransform(matrix.join(","));
-          onZoomChange && onZoomChange(newScale);
+          onZoomChange && onZoomChange(targetScale);
         }
       } else {
         targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
@@ -273,7 +273,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
           matrix[0] = "matrix3d(" + targetScale;
           matrix[5] = targetScale;
           setTransform(matrix.join(","));
-          onZoomChange && onZoomChange(newScale);
+          onZoomChange && onZoomChange(targetScale);
         }
       }
     }
