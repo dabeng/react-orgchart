@@ -3,7 +3,9 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
-  useImperativeHandle
+  useImperativeHandle,
+  useMemo,
+  useCallback
 } from "react";
 import PropTypes from "prop-types";
 import { selectNodeService } from "./service";
@@ -26,7 +28,9 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
-  onClickChart: PropTypes.func
+  onClickChart: PropTypes.func,
+  onZoomChange: PropTypes.func,
+  onDropNode: PropTypes.func,
 };
 
 const defaultProps = {
@@ -56,7 +60,9 @@ const ChartContainer = forwardRef(
       collapsible,
       multipleSelect,
       onClickNode,
-      onClickChart
+      onClickChart,
+      onZoomChange,
+      onDropNode
     },
     ref
   ) => {
@@ -73,16 +79,21 @@ const ChartContainer = forwardRef(
     const [dataURL, setDataURL] = useState("");
     const [download, setDownload] = useState("");
 
-    const attachRel = (data, flags) => {
+    const attachRel = useCallback((data, flags) => {
+      if (!!data && data.length) {
+        data.forEach(function (item) {
+          attachRel(item, flags === "00" ? flags : "1" + (data.length > 1 ? 1 : 0));
+        });
+      }
       data.relationship =
         flags + (data.children && data.children.length > 0 ? 1 : 0);
       if (data.children) {
-        data.children.forEach(function(item) {
+        data.children.forEach(function (item) {
           attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
         });
       }
       return data;
-    };
+    }, []);
 
     const [ds, setDS] = useState(datasource);
     useEffect(() => {
@@ -186,6 +197,7 @@ const ChartContainer = forwardRef(
             matrix[0] = "matrix(" + targetScale;
             matrix[3] = targetScale;
             setTransform(matrix.join(","));
+            onZoomChange && onZoomChange(targetScale);
           }
         } else {
           targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
@@ -193,6 +205,7 @@ const ChartContainer = forwardRef(
             matrix[0] = "matrix3d(" + targetScale;
             matrix[5] = targetScale;
             setTransform(matrix.join(","));
+            onZoomChange && onZoomChange(targetScale);
           }
         }
       }
@@ -209,15 +222,15 @@ const ChartContainer = forwardRef(
       const doc =
         canvasWidth > canvasHeight
           ? new jsPDF({
-              orientation: "landscape",
-              unit: "px",
-              format: [canvasWidth, canvasHeight]
-            })
+            orientation: "landscape",
+            unit: "px",
+            format: [canvasWidth, canvasHeight]
+          })
           : new jsPDF({
-              orientation: "portrait",
-              unit: "px",
-              format: [canvasHeight, canvasWidth]
-            });
+            orientation: "portrait",
+            unit: "px",
+            format: [canvasHeight, canvasWidth]
+          });
       doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
       doc.save(exportFilename + ".pdf");
     };
@@ -243,6 +256,8 @@ const ChartContainer = forwardRef(
       await dsDigger.removeNode(draggedItemData.id);
       await dsDigger.addChildren(dropTargetId, draggedItemData);
       setDS({ ...dsDigger.ds });
+
+      return { ...dsDigger.ds };
     };
 
     useImperativeHandle(ref, () => ({
@@ -257,7 +272,7 @@ const ChartContainer = forwardRef(
         html2canvas(chart.current, {
           width: chart.current.clientWidth,
           height: chart.current.clientHeight,
-          onclone: function(clonedDoc) {
+          onclone: function (clonedDoc) {
             clonedDoc.querySelector(".orgchart").style.background = "none";
             clonedDoc.querySelector(".orgchart").style.transform = "";
           }
@@ -291,8 +306,25 @@ const ChartContainer = forwardRef(
               "isAncestorsCollapsed"
             );
           });
+      },
+      setZoom: (newScale) => {
+        if (newScale < zoomoutLimit) {
+          newScale = zoomoutLimit
+        }
+        if (newScale > zoominLimit) {
+          newScale = zoominLimit;
+        }
+        setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
+      },
+      getChart: () => {
+        return ds.children;
+      },
+      resetPosition: () => {
+        setTransform("");
       }
     }));
+
+    const dsWithAttachedRel = useMemo(() => attachRel(ds, "00"), [attachRel, ds]);
 
     return (
       <div
@@ -310,15 +342,29 @@ const ChartContainer = forwardRef(
           onMouseMove={pan && panning ? panHandler : undefined}
         >
           <ul>
-            <ChartNode
-              datasource={attachRel(ds, "00")}
-              NodeTemplate={NodeTemplate}
-              draggable={draggable}
-              collapsible={collapsible}
-              multipleSelect={multipleSelect}
-              changeHierarchy={changeHierarchy}
-              onClickNode={onClickNode}
-            />
+            {!!dsWithAttachedRel && dsWithAttachedRel.length ? dsWithAttachedRel.map((_ds) => (
+              <ChartNode
+                datasource={_ds}
+                NodeTemplate={NodeTemplate}
+                draggable={draggable}
+                collapsible={collapsible}
+                multipleSelect={multipleSelect}
+                changeHierarchy={changeHierarchy}
+                onClickNode={onClickNode}
+                onDropNode={onDropNode}
+              />
+            )) : (
+              <ChartNode
+                datasource={dsWithAttachedRel}
+                NodeTemplate={NodeTemplate}
+                draggable={draggable}
+                collapsible={collapsible}
+                multipleSelect={multipleSelect}
+                changeHierarchy={changeHierarchy}
+                onClickNode={onClickNode}
+                onDropNode={onDropNode}
+              />
+            )}
           </ul>
         </div>
         <a
