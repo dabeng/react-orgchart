@@ -1,4 +1,4 @@
-"use strict";
+
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -65,7 +65,8 @@ var propTypes = {
   multipleSelect: _propTypes.default.bool,
   onClickNode: _propTypes.default.func,
   onClickChart: _propTypes.default.func,
-  onZoomChange: _propTypes.default.func
+  onZoomChange: _propTypes.default.func,
+  onDropNode: _propTypes.default.func
 };
 var defaultProps = {
   pan: false,
@@ -92,7 +93,8 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
       multipleSelect = _ref.multipleSelect,
       onClickNode = _ref.onClickNode,
       onClickChart = _ref.onClickChart,
-      onZoomChange = _ref.onZoomChange;
+      onZoomChange = _ref.onZoomChange,
+      onDropNode = _ref.onDropNode;
   var container = (0, _react.useRef)();
   var chart = (0, _react.useRef)();
   var downloadButton = (0, _react.useRef)();
@@ -137,7 +139,13 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
       download = _useState16[0],
       setDownload = _useState16[1];
 
-  var attachRel = function attachRel(data, flags) {
+  var attachRel = (0, _react.useCallback)(function (data, flags) {
+    if (!!data && data.length) {
+      data.forEach(function (item) {
+        attachRel(item, flags === "00" ? flags : "1" + (data.length > 1 ? 1 : 0));
+      });
+    }
+
     data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
 
     if (data.children) {
@@ -147,7 +155,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     }
 
     return data;
-  };
+  }, []);
 
   var _useState17 = (0, _react.useState)(datasource),
       _useState18 = _slicedToArray(_useState17, 2),
@@ -329,8 +337,9 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
 
             case 4:
               setDS(_objectSpread({}, dsDigger.ds));
+              return _context.abrupt("return", _objectSpread({}, dsDigger.ds));
 
-            case 5:
+            case 6:
             case "end":
               return _context.stop();
           }
@@ -391,9 +400,18 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
         }
 
         setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
+      },
+      getChart: function getChart() {
+        return ds.children;
+      },
+      resetPosition: function resetPosition() {
+        setTransform("");
       }
     };
   });
+  var dsWithAttachedRel = (0, _react.useMemo)(function () {
+    return attachRel(ds, "00");
+  }, [attachRel, ds]);
   return /*#__PURE__*/_react.default.createElement("div", {
     ref: container,
     className: "orgchart-container " + containerClass,
@@ -409,14 +427,26 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     onClick: clickChartHandler,
     onMouseDown: pan ? panStartHandler : undefined,
     onMouseMove: pan && panning ? panHandler : undefined
-  }, /*#__PURE__*/_react.default.createElement("ul", null, /*#__PURE__*/_react.default.createElement(_ChartNode.default, {
-    datasource: attachRel(ds, "00"),
+  }, /*#__PURE__*/_react.default.createElement("ul", null, !!dsWithAttachedRel && dsWithAttachedRel.length ? dsWithAttachedRel.map(function (_ds) {
+    return /*#__PURE__*/_react.default.createElement(_ChartNode.default, {
+      datasource: _ds,
+      NodeTemplate: NodeTemplate,
+      draggable: draggable,
+      collapsible: collapsible,
+      multipleSelect: multipleSelect,
+      changeHierarchy: changeHierarchy,
+      onClickNode: onClickNode,
+      onDropNode: onDropNode
+    });
+  }) : /*#__PURE__*/_react.default.createElement(_ChartNode.default, {
+    datasource: dsWithAttachedRel,
     NodeTemplate: NodeTemplate,
     draggable: draggable,
     collapsible: collapsible,
     multipleSelect: multipleSelect,
     changeHierarchy: changeHierarchy,
-    onClickNode: onClickNode
+    onClickNode: onClickNode,
+    onDropNode: onDropNode
   }))), /*#__PURE__*/_react.default.createElement("a", {
     className: "oc-download-btn hidden",
     ref: downloadButton,

@@ -1,4 +1,4 @@
-"use strict";
+
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -20,6 +20,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -54,7 +58,8 @@ var propTypes = {
   collapsible: _propTypes.default.bool,
   multipleSelect: _propTypes.default.bool,
   changeHierarchy: _propTypes.default.func,
-  onClickNode: _propTypes.default.func
+  onClickNode: _propTypes.default.func,
+  onDropNode: _propTypes.default.func
 };
 var defaultProps = {
   draggable: false,
@@ -69,7 +74,8 @@ var ChartNode = function ChartNode(_ref) {
       collapsible = _ref.collapsible,
       multipleSelect = _ref.multipleSelect,
       changeHierarchy = _ref.changeHierarchy,
-      onClickNode = _ref.onClickNode;
+      onClickNode = _ref.onClickNode,
+      onDropNode = _ref.onDropNode;
   var node = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(false),
@@ -277,15 +283,42 @@ var ChartNode = function ChartNode(_ref) {
     _service.dragNodeService.clearDragInfo();
   };
 
-  var dropHandler = function dropHandler(event) {
-    if (!event.currentTarget.classList.contains("allowedDrop")) {
-      return;
-    }
+  var dropHandler = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(event) {
+      var data;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (event.currentTarget.classList.contains("allowedDrop")) {
+                _context.next = 2;
+                break;
+              }
 
-    _service.dragNodeService.clearDragInfo();
+              return _context.abrupt("return");
 
-    changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
-  };
+            case 2:
+              _service.dragNodeService.clearDragInfo();
+
+              _context.next = 5;
+              return changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
+
+            case 5:
+              data = _context.sent;
+              onDropNode && onDropNode(data);
+
+            case 7:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    return function dropHandler(_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
 
   return /*#__PURE__*/_react.default.createElement("li", {
     className: "oc-hierarchy"
@@ -333,7 +366,8 @@ var ChartNode = function ChartNode(_ref) {
       collapsible: collapsible,
       multipleSelect: multipleSelect,
       changeHierarchy: changeHierarchy,
-      onClickNode: onClickNode
+      onClickNode: onClickNode,
+      onDropNode: onDropNode
     });
   })));
 };

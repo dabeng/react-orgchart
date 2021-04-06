@@ -29,7 +29,8 @@ const propTypes = {
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
   onClickChart: PropTypes.func,
-  onZoomChange: PropTypes.func
+  onZoomChange: PropTypes.func,
+  onDropNode: PropTypes.func,
 };
 
 const defaultProps = {
@@ -60,7 +61,8 @@ const ChartContainer = forwardRef(
       multipleSelect,
       onClickNode,
       onClickChart,
-      onZoomChange
+      onZoomChange,
+      onDropNode
     },
     ref
   ) => {
@@ -254,6 +256,8 @@ const ChartContainer = forwardRef(
       await dsDigger.removeNode(draggedItemData.id);
       await dsDigger.addChildren(dropTargetId, draggedItemData);
       setDS({ ...dsDigger.ds });
+
+      return { ...dsDigger.ds };
     };
 
     useImperativeHandle(ref, () => ({
@@ -311,6 +315,12 @@ const ChartContainer = forwardRef(
           newScale = zoominLimit;
         }
         setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
+      },
+      getChart: () => {
+        return ds.children;
+      },
+      resetPosition: () => {
+        setTransform("");
       }
     }));
 
@@ -341,18 +351,20 @@ const ChartContainer = forwardRef(
                 multipleSelect={multipleSelect}
                 changeHierarchy={changeHierarchy}
                 onClickNode={onClickNode}
+                onDropNode={onDropNode}
               />
             )) : (
-                <ChartNode
-                  datasource={dsWithAttachedRel}
-                  NodeTemplate={NodeTemplate}
-                  draggable={draggable}
-                  collapsible={collapsible}
-                  multipleSelect={multipleSelect}
-                  changeHierarchy={changeHierarchy}
-                  onClickNode={onClickNode}
-                />
-              )}
+              <ChartNode
+                datasource={dsWithAttachedRel}
+                NodeTemplate={NodeTemplate}
+                draggable={draggable}
+                collapsible={collapsible}
+                multipleSelect={multipleSelect}
+                changeHierarchy={changeHierarchy}
+                onClickNode={onClickNode}
+                onDropNode={onDropNode}
+              />
+            )}
           </ul>
         </div>
         <a

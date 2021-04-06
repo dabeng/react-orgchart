@@ -10,7 +10,8 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   changeHierarchy: PropTypes.func,
-  onClickNode: PropTypes.func
+  onClickNode: PropTypes.func,
+  onDropNode: PropTypes.func
 };
 
 const defaultProps = {
@@ -26,7 +27,8 @@ const ChartNode = ({
   collapsible,
   multipleSelect,
   changeHierarchy,
-  onClickNode
+  onClickNode,
+  onDropNode
 }) => {
   const node = useRef();
 
@@ -224,15 +226,17 @@ const ChartNode = ({
     dragNodeService.clearDragInfo();
   };
 
-  const dropHandler = event => {
+  const dropHandler = async (event) => {
     if (!event.currentTarget.classList.contains("allowedDrop")) {
       return;
     }
     dragNodeService.clearDragInfo();
-    changeHierarchy(
+    const data = await changeHierarchy(
       JSON.parse(event.dataTransfer.getData("text/plain")),
       event.currentTarget.id
     );
+
+    onDropNode && onDropNode(data);
   };
 
   return (
@@ -268,13 +272,12 @@ const ChartNode = ({
           datasource.relationship &&
           datasource.relationship.charAt(0) === "1" && (
             <i
-              className={`oc-edge verticalEdge topEdge oci ${
-                topEdgeExpanded === undefined
-                  ? ""
-                  : topEdgeExpanded
+              className={`oc-edge verticalEdge topEdge oci ${topEdgeExpanded === undefined
+                ? ""
+                : topEdgeExpanded
                   ? "oci-chevron-down"
                   : "oci-chevron-up"
-              }`}
+                }`}
               onClick={topEdgeClickHandler}
             />
           )}
@@ -283,23 +286,21 @@ const ChartNode = ({
           datasource.relationship.charAt(1) === "1" && (
             <>
               <i
-                className={`oc-edge horizontalEdge rightEdge oci ${
-                  rightEdgeExpanded === undefined
-                    ? ""
-                    : rightEdgeExpanded
+                className={`oc-edge horizontalEdge rightEdge oci ${rightEdgeExpanded === undefined
+                  ? ""
+                  : rightEdgeExpanded
                     ? "oci-chevron-left"
                     : "oci-chevron-right"
-                }`}
+                  }`}
                 onClick={hEdgeClickHandler}
               />
               <i
-                className={`oc-edge horizontalEdge leftEdge oci ${
-                  leftEdgeExpanded === undefined
-                    ? ""
-                    : leftEdgeExpanded
+                className={`oc-edge horizontalEdge leftEdge oci ${leftEdgeExpanded === undefined
+                  ? ""
+                  : leftEdgeExpanded
                     ? "oci-chevron-right"
                     : "oci-chevron-left"
-                }`}
+                  }`}
                 onClick={hEdgeClickHandler}
               />
             </>
@@ -308,13 +309,12 @@ const ChartNode = ({
           datasource.relationship &&
           datasource.relationship.charAt(2) === "1" && (
             <i
-              className={`oc-edge verticalEdge bottomEdge oci ${
-                bottomEdgeExpanded === undefined
-                  ? ""
-                  : bottomEdgeExpanded
+              className={`oc-edge verticalEdge bottomEdge oci ${bottomEdgeExpanded === undefined
+                ? ""
+                : bottomEdgeExpanded
                   ? "oci-chevron-up"
                   : "oci-chevron-down"
-              }`}
+                }`}
               onClick={bottomEdgeClickHandler}
             />
           )}
@@ -332,6 +332,7 @@ const ChartNode = ({
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
+              onDropNode={onDropNode}
             />
           ))}
         </ul>
