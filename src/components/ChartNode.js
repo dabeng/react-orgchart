@@ -250,9 +250,8 @@ const ChartNode = ({
         onMouseEnter={addArrows}
         onMouseLeave={removeArrows}
       >
-        {NodeTemplate ? (
-          <NodeTemplate nodeData={datasource} />
-        ) : (
+        {/* nodeData={datasource} */}
+        {NodeTemplate ? NodeTemplate({ nodeData: datasource }) : (
           <>
             <div className="oc-heading">
               {datasource.relationship &&
