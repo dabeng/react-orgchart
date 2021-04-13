@@ -6,7 +6,7 @@ const CustomNodeChart = () => {
   const ds = {
     id: "n1",
     name: "Lao Lao",
-    title: "general manager",
+		title: "general manager",
     children: [
       { id: "n2", name: "Bo Miao", title: "department manager" },
       {

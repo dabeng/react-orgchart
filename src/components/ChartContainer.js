@@ -26,7 +26,8 @@ const propTypes = {
   collapsible: PropTypes.bool,
   multipleSelect: PropTypes.bool,
   onClickNode: PropTypes.func,
-  onClickChart: PropTypes.func
+  onClickChart: PropTypes.func,
+  loadData: PropTypes.func
 };
 
 const defaultProps = {
@@ -56,14 +57,15 @@ const ChartContainer = forwardRef(
       collapsible,
       multipleSelect,
       onClickNode,
-      onClickChart
+      onClickChart,
+      loadData
     },
     ref
   ) => {
+
     const container = useRef();
     const chart = useRef();
     const downloadButton = useRef();
-
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
     const [transform, setTransform] = useState("");
@@ -74,8 +76,12 @@ const ChartContainer = forwardRef(
     const [download, setDownload] = useState("");
 
     const attachRel = (data, flags) => {
-      data.relationship =
-        flags + (data.children && data.children.length > 0 ? 1 : 0);
+      if (data.isLeaf === undefined) {
+        data.isLeaf = true;
+      }
+
+      data.relationship = flags + ((data.children && !!data.children.length) || !data.isLeaf ? 1 : 0);
+
       if (data.children) {
         data.children.forEach(function(item) {
           attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
@@ -84,10 +90,16 @@ const ChartContainer = forwardRef(
       return data;
     };
 
-    const [ds, setDS] = useState(datasource);
     useEffect(() => {
       setDS(datasource);
     }, [datasource]);
+
+    const [ds, setDS] = useState(datasource);
+
+    const onLoadData = async (datasource, children) => {
+      await dsDigger.updateNode({ ...datasource, children });
+      setDS({ ...dsDigger.ds });
+    };
 
     const dsDigger = new JSONDigger(datasource, "id", "children");
 
@@ -212,12 +224,12 @@ const ChartContainer = forwardRef(
               orientation: "landscape",
               unit: "px",
               format: [canvasWidth, canvasHeight]
-            })
+          })
           : new jsPDF({
               orientation: "portrait",
               unit: "px",
               format: [canvasHeight, canvasWidth]
-            });
+          });
       doc.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0);
       doc.save(exportFilename + ".pdf");
     };
@@ -291,7 +303,7 @@ const ChartContainer = forwardRef(
               "isAncestorsCollapsed"
             );
           });
-      }
+      },
     }));
 
     return (
@@ -318,6 +330,8 @@ const ChartContainer = forwardRef(
               multipleSelect={multipleSelect}
               changeHierarchy={changeHierarchy}
               onClickNode={onClickNode}
+              loadData={loadData}
+              onLoadData={onLoadData}
             />
           </ul>
         </div>

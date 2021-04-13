@@ -13,6 +13,20 @@
 - Supports exporting chart as a picture or pdf document
 - Supports pan and zoom
 - Allows user to customize the internal structure for every node
+- Allows user to fetch nodes from server and add to chart(lazyload)
+
+## Chart Node
+
+```js
+type node = {
+  id: string
+  isLeaf?: boolean
+  defaultExpanded?: boolean
+  children: node[]
+```
+
+you can add other fields to the model.
+
 
 ## Props
 <table>
@@ -102,6 +116,12 @@
       <td>number</td>
       <td>0.5</td>
       <td>User can zoom the chart at different scales(0.5~7).</td>
+    </tr>
+    <tr>
+      <td>loadData</td>
+      <td>function</td>
+      <td></td>
+      <td>This function takes the node as an argument and returns a Promise. Promise should return a list of child nodes in resolve: (node) => Promise< node[] ></td>
     </tr>
   </tbody>
 </table>
