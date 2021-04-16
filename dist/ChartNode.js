@@ -1,4 +1,4 @@
-
+"use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -320,6 +320,11 @@ var ChartNode = function ChartNode(_ref) {
     };
   }();
 
+  var Node = (0, _react.useCallback)(function () {
+    return NodeTemplate({
+      nodeData: datasource
+    });
+  }, [datasource]);
   return /*#__PURE__*/_react.default.createElement("li", {
     className: "oc-hierarchy"
   }, /*#__PURE__*/_react.default.createElement("div", {
@@ -334,9 +339,7 @@ var ChartNode = function ChartNode(_ref) {
     onDrop: dropHandler,
     onMouseEnter: addArrows,
     onMouseLeave: removeArrows
-  }, NodeTemplate ? /*#__PURE__*/_react.default.createElement(NodeTemplate, {
-    nodeData: datasource
-  }) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
+  }, NodeTemplate ? Node() : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     className: "oc-heading"
   }, datasource.relationship && datasource.relationship.charAt(2) === "1" && /*#__PURE__*/_react.default.createElement("i", {
     className: "oci oci-leader oc-symbol"

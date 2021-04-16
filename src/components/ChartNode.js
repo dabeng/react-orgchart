@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { dragNodeService, selectNodeService } from "./service";
 import "./ChartNode.css";
@@ -239,6 +239,8 @@ const ChartNode = ({
     onDropNode && onDropNode(data);
   };
 
+  const Node = useCallback(() => NodeTemplate({ nodeData: datasource }), [datasource])
+
   return (
     <li className="oc-hierarchy">
       <div
@@ -254,8 +256,7 @@ const ChartNode = ({
         onMouseEnter={addArrows}
         onMouseLeave={removeArrows}
       >
-        {/* nodeData={datasource} */}
-        {NodeTemplate ? NodeTemplate({ nodeData: datasource }) : (
+        {NodeTemplate ? Node() : (
           <>
             <div className="oc-heading">
               {datasource.relationship &&
