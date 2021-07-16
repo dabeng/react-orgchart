@@ -124,10 +124,21 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
       download = _useState10[0],
       setDownload = _useState10[1];
 
-  var _useState11 = (0, _react.useState)(1),
+  var _useState11 = (0, _react.useState)({
+    oldX: 0,
+    oldY: 0,
+    x: 0,
+    y: 0,
+    z: 1
+  }),
       _useState12 = _slicedToArray(_useState11, 2),
-      scale = _useState12[0],
-      setScale = _useState12[1];
+      position = _useState12[0],
+      setPosition = _useState12[1];
+
+  var _useState13 = (0, _react.useState)(1),
+      _useState14 = _slicedToArray(_useState13, 2),
+      scale = _useState14[0],
+      setScale = _useState14[1];
 
   var debouncedScale = (0, _service.useDebouncedState)(scale);
   var attachRel = (0, _react.useCallback)(function (data, flags) {
@@ -148,10 +159,10 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     return data;
   }, []);
 
-  var _useState13 = (0, _react.useState)(datasource),
-      _useState14 = _slicedToArray(_useState13, 2),
-      ds = _useState14[0],
-      setDS = _useState14[1];
+  var _useState15 = (0, _react.useState)(datasource),
+      _useState16 = _slicedToArray(_useState15, 2),
+      ds = _useState16[0],
+      setDS = _useState16[1];
 
   (0, _react.useEffect)(function () {
     setDS(datasource);
@@ -172,17 +183,6 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     setCursor("default");
   };
 
-  var _useState15 = (0, _react.useState)({
-    oldX: 0,
-    oldY: 0,
-    x: 0,
-    y: 0,
-    z: 1
-  }),
-      _useState16 = _slicedToArray(_useState15, 2),
-      position = _useState16[0],
-      setPosition = _useState16[1];
-
   var panStartHandler = function panStartHandler(e) {
     if (e.target.closest(".oc-node")) {
       setPanning(false);
@@ -195,33 +195,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
         oldY: e.clientY
       }));
     }
-  }; // const updateChartScale = newScale => {
-  //   let matrix = [];
-  //   let targetScale = 1;
-  //   if (transform === "") {
-  //     setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
-  //   } else {
-  //     matrix = transform.split(",");
-  //     if (transform.indexOf("3d") === -1) {
-  //       targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
-  //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-  //         matrix[0] = "matrix(" + targetScale;
-  //         matrix[3] = targetScale;
-  //         setTransform(matrix.join(","));
-  //         onZoomChange && onZoomChange(targetScale);
-  //       }
-  //     } else {
-  //       targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
-  //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-  //         matrix[0] = "matrix3d(" + targetScale;
-  //         matrix[5] = targetScale;
-  //         setTransform(matrix.join(","));
-  //         onZoomChange && onZoomChange(targetScale);
-  //       }
-  //     }
-  //   }
-  // };
-
+  };
 
   (0, _react.useEffect)(function () {
     var mouseup = function mouseup() {
@@ -269,8 +243,8 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
   };
 
   (0, _react.useEffect)(function () {
-    onZoomChange && onZoomChange(debouncedScale);
-  }, [onZoomChange, debouncedScale]);
+    onZoomChange && onZoomChange(debouncedScale); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedScale]);
 
   var exportPDF = function exportPDF(canvas, exportFilename) {
     var canvasWidth = Math.floor(canvas.width);

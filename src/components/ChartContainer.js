@@ -75,6 +75,13 @@ const ChartContainer = forwardRef(
     const [exporting, setExporting] = useState(false);
     const [dataURL, setDataURL] = useState("");
     const [download, setDownload] = useState("");
+    const [position, setPosition] = useState({
+      oldX: 0,
+      oldY: 0,
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     const [scale, setScale] = useState(1);
     const debouncedScale = useDebouncedState(scale);
 
@@ -114,13 +121,6 @@ const ChartContainer = forwardRef(
       setCursor("default");
     };
 
-    const [position, setPosition] = useState({
-      oldX: 0,
-      oldY: 0,
-      x: 0,
-      y: 0,
-      z: 1,
-    });
     const panStartHandler = e => {
       if (e.target.closest(".oc-node")) {
         setPanning(false);
@@ -135,33 +135,6 @@ const ChartContainer = forwardRef(
         });
       }
     };
-
-    // const updateChartScale = newScale => {
-    //   let matrix = [];
-    //   let targetScale = 1;
-    //   if (transform === "") {
-    //     setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
-    //   } else {
-    //     matrix = transform.split(",");
-    //     if (transform.indexOf("3d") === -1) {
-    //       targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
-    //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-    //         matrix[0] = "matrix(" + targetScale;
-    //         matrix[3] = targetScale;
-    //         setTransform(matrix.join(","));
-    //         onZoomChange && onZoomChange(targetScale);
-    //       }
-    //     } else {
-    //       targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
-    //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-    //         matrix[0] = "matrix3d(" + targetScale;
-    //         matrix[5] = targetScale;
-    //         setTransform(matrix.join(","));
-    //         onZoomChange && onZoomChange(targetScale);
-    //       }
-    //     }
-    //   }
-    // };
 
     useEffect(() => {
       const mouseup = () => {
@@ -208,7 +181,8 @@ const ChartContainer = forwardRef(
     
     useEffect(() => {
       onZoomChange && onZoomChange(debouncedScale);
-    }, [onZoomChange, debouncedScale])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedScale])
 
     const exportPDF = (canvas, exportFilename) => {
       const canvasWidth = Math.floor(canvas.width);
