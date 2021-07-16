@@ -8,7 +8,7 @@ import React, {
   useCallback
 } from "react";
 import PropTypes from "prop-types";
-import { selectNodeService } from "./service";
+import { selectNodeService, useDebouncedState } from "./service";
 import JSONDigger from "json-digger";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -70,14 +70,13 @@ const ChartContainer = forwardRef(
     const chart = useRef();
     const downloadButton = useRef();
 
-    const [startX, setStartX] = useState(0);
-    const [startY, setStartY] = useState(0);
-    const [transform, setTransform] = useState("");
     const [panning, setPanning] = useState(false);
     const [cursor, setCursor] = useState("default");
     const [exporting, setExporting] = useState(false);
     const [dataURL, setDataURL] = useState("");
     const [download, setDownload] = useState("");
+    const [scale, setScale] = useState(1);
+    const debouncedScale = useDebouncedState(scale);
 
     const attachRel = useCallback((data, flags) => {
       if (!!data && data.length) {
@@ -112,109 +111,104 @@ const ChartContainer = forwardRef(
     };
 
     const panEndHandler = () => {
-      setPanning(false);
       setCursor("default");
     };
 
-    const panHandler = e => {
-      let newX = 0;
-      let newY = 0;
-      if (!e.targetTouches) {
-        // pand on desktop
-        newX = e.pageX - startX;
-        newY = e.pageY - startY;
-      } else if (e.targetTouches.length === 1) {
-        // pan on mobile device
-        newX = e.targetTouches[0].pageX - startX;
-        newY = e.targetTouches[0].pageY - startY;
-      } else if (e.targetTouches.length > 1) {
-        return;
-      }
-      if (transform === "") {
-        if (transform.indexOf("3d") === -1) {
-          setTransform("matrix(1,0,0,1," + newX + "," + newY + ")");
-        } else {
-          setTransform(
-            "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0," + newX + ", " + newY + ",0,1)"
-          );
-        }
-      } else {
-        let matrix = transform.split(",");
-        if (transform.indexOf("3d") === -1) {
-          matrix[4] = newX;
-          matrix[5] = newY + ")";
-        } else {
-          matrix[12] = newX;
-          matrix[13] = newY;
-        }
-        setTransform(matrix.join(","));
-      }
-    };
-
+    const [position, setPosition] = useState({
+      oldX: 0,
+      oldY: 0,
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     const panStartHandler = e => {
       if (e.target.closest(".oc-node")) {
         setPanning(false);
         return;
       } else {
+        e.preventDefault();
         setPanning(true);
-        setCursor("move");
-      }
-      let lastX = 0;
-      let lastY = 0;
-      if (transform !== "") {
-        let matrix = transform.split(",");
-        if (transform.indexOf("3d") === -1) {
-          lastX = parseInt(matrix[4]);
-          lastY = parseInt(matrix[5]);
-        } else {
-          lastX = parseInt(matrix[12]);
-          lastY = parseInt(matrix[13]);
-        }
-      }
-      if (!e.targetTouches) {
-        // pand on desktop
-        setStartX(e.pageX - lastX);
-        setStartY(e.pageY - lastY);
-      } else if (e.targetTouches.length === 1) {
-        // pan on mobile device
-        setStartX(e.targetTouches[0].pageX - lastX);
-        setStartY(e.targetTouches[0].pageY - lastY);
-      } else if (e.targetTouches.length > 1) {
-        return;
+        setPosition({
+          ...position,
+          oldX: e.clientX,
+          oldY: e.clientY
+        });
       }
     };
 
-    const updateChartScale = newScale => {
-      let matrix = [];
-      let targetScale = 1;
-      if (transform === "") {
-        setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
-      } else {
-        matrix = transform.split(",");
-        if (transform.indexOf("3d") === -1) {
-          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
-          if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-            matrix[0] = "matrix(" + targetScale;
-            matrix[3] = targetScale;
-            setTransform(matrix.join(","));
-            onZoomChange && onZoomChange(targetScale);
-          }
-        } else {
-          targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
-          if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
-            matrix[0] = "matrix3d(" + targetScale;
-            matrix[5] = targetScale;
-            setTransform(matrix.join(","));
-            onZoomChange && onZoomChange(targetScale);
-          }
+    // const updateChartScale = newScale => {
+    //   let matrix = [];
+    //   let targetScale = 1;
+    //   if (transform === "") {
+    //     setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
+    //   } else {
+    //     matrix = transform.split(",");
+    //     if (transform.indexOf("3d") === -1) {
+    //       targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
+    //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
+    //         matrix[0] = "matrix(" + targetScale;
+    //         matrix[3] = targetScale;
+    //         setTransform(matrix.join(","));
+    //         onZoomChange && onZoomChange(targetScale);
+    //       }
+    //     } else {
+    //       targetScale = Math.abs(window.parseFloat(matrix[5]) * newScale);
+    //       if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
+    //         matrix[0] = "matrix3d(" + targetScale;
+    //         matrix[5] = targetScale;
+    //         setTransform(matrix.join(","));
+    //         onZoomChange && onZoomChange(targetScale);
+    //       }
+    //     }
+    //   }
+    // };
+
+    useEffect(() => {
+      const mouseup = () => {
+        setPanning(false);
+      };
+      const mousemove = (event) => {
+        if (panning) {
+          setPosition({
+            ...position,
+            x: position.x + event.clientX - position.oldX,
+            y: position.y + event.clientY - position.oldY,
+            oldX: event.clientX,
+            oldY: event.clientY,
+          });
         }
-      }
-    };
+      };
+      window.addEventListener('mouseup', mouseup);
+      window.addEventListener('mousemove', mousemove);
+      return () => {
+        window.removeEventListener('mouseup', mouseup);
+        window.removeEventListener('mousemove', mousemove);
+      };
+    });
 
     const zoomHandler = e => {
-      let newScale = 1 + (e.deltaY > 0 ? -0.2 : 0.2);
-      updateChartScale(newScale);
+      if (e.deltaY) {
+        const sign = Math.sign(e.deltaY) / 100;
+        const scale = 1 - sign;
+        const rect = container.current.getBoundingClientRect();
+        const chartEl = container.current.getBoundingClientRect();
+        
+        const targetScale = position.z * scale;
+        if (targetScale > zoomoutLimit && targetScale < zoominLimit) {
+          setPosition({
+            ...position,
+            x: position.x * scale - (rect.width / 2 - e.clientX + rect.x) * sign,
+            y: position.y * scale - (chartEl.height * rect.width / chartEl.width / 2 - e.clientY + rect.y) * sign,
+            z: targetScale,
+          });
+          setScale(targetScale);
+        }
+      }
     };
+    
+    useEffect(() => {
+      onZoomChange && onZoomChange(debouncedScale);
+    }, [onZoomChange, debouncedScale])
 
     const exportPDF = (canvas, exportFilename) => {
       const canvasWidth = Math.floor(canvas.width);
@@ -314,13 +308,13 @@ const ChartContainer = forwardRef(
         if (newScale > zoominLimit) {
           newScale = zoominLimit;
         }
-        setTransform("matrix(" + newScale + ", 0, 0, " + newScale + ", 0, 0)");
+        setPosition((position) => ({ ...position, z: newScale }))
       },
       getChart: () => {
         return ds.children;
       },
       resetPosition: () => {
-        setTransform("");
+        setPosition({ oldX: 0, oldY: 0, x: 0, y: 0, z: 0 })
       }
     }));
 
@@ -336,10 +330,12 @@ const ChartContainer = forwardRef(
         <div
           ref={chart}
           className={"orgchart " + chartClass}
-          style={{ transform: transform, cursor: cursor }}
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${position.z})`,
+            cursor: cursor,
+          }}
           onClick={clickChartHandler}
           onMouseDown={pan ? panStartHandler : undefined}
-          onMouseMove={pan && panning ? panHandler : undefined}
         >
           <ul>
             {!!dsWithAttachedRel && dsWithAttachedRel.length ? dsWithAttachedRel.map((_ds) => (
