@@ -129,7 +129,7 @@ var ChartNode = function ChartNode(_ref) {
       if (selectedNodeInfo) {
         if (multipleSelect) {
           if (selectedNodeInfo.selectedNodeId === datasource.id) {
-            setSelected(true);
+            setSelected(!selected);
           }
         } else {
           setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
@@ -143,7 +143,7 @@ var ChartNode = function ChartNode(_ref) {
       subs1.unsubscribe();
       subs2.unsubscribe();
     };
-  }, [multipleSelect, datasource]);
+  }, [multipleSelect, datasource, selected]);
 
   var addArrows = function addArrows(e) {
     var node = e.target.closest("li");

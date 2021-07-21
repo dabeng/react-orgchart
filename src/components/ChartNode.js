@@ -71,7 +71,7 @@ const ChartNode = ({
         if (selectedNodeInfo) {
           if (multipleSelect) {
             if (selectedNodeInfo.selectedNodeId === datasource.id) {
-              setSelected(true);
+              setSelected(!selected);
             }
           } else {
             setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
@@ -85,7 +85,7 @@ const ChartNode = ({
       subs1.unsubscribe();
       subs2.unsubscribe();
     };
-  }, [multipleSelect, datasource]);
+  }, [multipleSelect, datasource, selected]);
 
   const addArrows = e => {
     const node = e.target.closest("li");
