@@ -272,11 +272,11 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
     }).then(function (jsPDF) {
       var canvasWidth = Math.floor(canvas.width);
       var canvasHeight = Math.floor(canvas.height);
-      var doc = canvasWidth > canvasHeight ? new jsPDF({
+      var doc = canvasWidth > canvasHeight ? new jsPDF.default({
         orientation: "landscape",
         unit: "px",
         format: [canvasWidth, canvasHeight]
-      }) : new jsPDF({
+      }) : new jsPDF.default({
         orientation: "portrait",
         unit: "px",
         format: [canvasHeight, canvasWidth]
@@ -321,7 +321,7 @@ var ChartContainer = (0, _react.forwardRef)(function (_ref, ref) {
         Promise.resolve().then(function () {
           return _interopRequireWildcard(require("html2canvas"));
         }).then(function (html2canvas) {
-          html2canvas(chart.current, {
+          html2canvas.default(chart.current, {
             width: chart.current.clientWidth,
             height: chart.current.clientHeight,
             onclone: function onclone(clonedDoc) {
