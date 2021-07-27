@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-orgchart",
+  "name": "nextjs-orgchart-fix",
   "version": "1.0.8",
   "main": "./dist/ChartContainer.js",
   "files": [
