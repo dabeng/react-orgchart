@@ -125,15 +125,9 @@ var ChartNode = function ChartNode(_ref) {
       }
     });
 
-    var subs2 = _service.selectNodeService.getSelectedNodeInfo().subscribe(function (selectedNodeInfo) {
-      if (selectedNodeInfo) {
-        if (multipleSelect) {
-          if (selectedNodeInfo.selectedNodeId === datasource.id) {
-            setSelected(!selected);
-          }
-        } else {
-          setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
-        }
+    var subs2 = _service.selectNodeService.getSelectedNodes().subscribe(function (selectedNodesIds) {
+      if (selectedNodesIds && selectedNodesIds.indexOf(datasource.id) > -1) {
+        setSelected(true);
       } else {
         setSelected(false);
       }
@@ -261,7 +255,7 @@ var ChartNode = function ChartNode(_ref) {
       onClickNode(datasource);
     }
 
-    _service.selectNodeService.sendSelectedNodeInfo(datasource.id);
+    _service.selectNodeService.toggleSelectNode(datasource.id);
   };
 
   var dragstartHandler = function dragstartHandler(event) {

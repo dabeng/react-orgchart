@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
 import { Subject } from "rxjs";
 
-const subject1 = new Subject();
-const subject2 = new Subject();
+let selectedNodesIds = [];
+const dragNodeSubject = new Subject();
+const selectedNodesIdsSubject = new Subject();
 
 export const dragNodeService = {
-  sendDragInfo: id => subject1.next({ draggedNodeId: id }),
-  clearDragInfo: () => subject1.next(),
-  getDragInfo: () => subject1.asObservable()
+  sendDragInfo: id => dragNodeSubject.next({ draggedNodeId: id }),
+  clearDragInfo: () => dragNodeSubject.next(),
+  getDragInfo: () => dragNodeSubject.asObservable()
 };
 
 export const selectNodeService = {
-  sendSelectedNodeInfo: id => subject2.next({ selectedNodeId: id }),
-  clearSelectedNodeInfo: () => subject2.next(),
-  getSelectedNodeInfo: () => subject2.asObservable()
+  toggleSelectNode: id => {
+    const index = selectedNodesIds.indexOf(id);
+    if (index > -1) {
+      selectedNodesIds.splice(index, 1);
+    } else {
+      selectedNodesIds.push(id);
+    }
+    selectedNodesIdsSubject.next(selectedNodesIds);
+  },
+  clearSelectedNodes: () => {
+    selectedNodesIds = [];
+    selectedNodesIdsSubject.next(selectedNodesIds)
+  },
+  getSelectedNodes: () => selectedNodesIdsSubject.asObservable()
 };
 
 export function useDebouncedState(value, delay = 300) {

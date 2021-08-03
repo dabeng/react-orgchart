@@ -22,33 +22,41 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var subject1 = new _rxjs.Subject();
-var subject2 = new _rxjs.Subject();
+var selectedNodesIds = [];
+var dragNodeSubject = new _rxjs.Subject();
+var selectedNodesIdsSubject = new _rxjs.Subject();
 var dragNodeService = {
   sendDragInfo: function sendDragInfo(id) {
-    return subject1.next({
+    return dragNodeSubject.next({
       draggedNodeId: id
     });
   },
   clearDragInfo: function clearDragInfo() {
-    return subject1.next();
+    return dragNodeSubject.next();
   },
   getDragInfo: function getDragInfo() {
-    return subject1.asObservable();
+    return dragNodeSubject.asObservable();
   }
 };
 exports.dragNodeService = dragNodeService;
 var selectNodeService = {
-  sendSelectedNodeInfo: function sendSelectedNodeInfo(id) {
-    return subject2.next({
-      selectedNodeId: id
-    });
+  toggleSelectNode: function toggleSelectNode(id) {
+    var index = selectedNodesIds.indexOf(id);
+
+    if (index > -1) {
+      selectedNodesIds.splice(index, 1);
+    } else {
+      selectedNodesIds.push(id);
+    }
+
+    selectedNodesIdsSubject.next(selectedNodesIds);
   },
-  clearSelectedNodeInfo: function clearSelectedNodeInfo() {
-    return subject2.next();
+  clearSelectedNodes: function clearSelectedNodes() {
+    selectedNodesIds = [];
+    selectedNodesIdsSubject.next(selectedNodesIds);
   },
-  getSelectedNodeInfo: function getSelectedNodeInfo() {
-    return subject2.asObservable();
+  getSelectedNodes: function getSelectedNodes() {
+    return selectedNodesIdsSubject.asObservable();
   }
 };
 exports.selectNodeService = selectNodeService;

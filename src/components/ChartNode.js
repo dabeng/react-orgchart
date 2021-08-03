@@ -66,16 +66,10 @@ const ChartNode = ({
     });
 
     const subs2 = selectNodeService
-      .getSelectedNodeInfo()
-      .subscribe(selectedNodeInfo => {
-        if (selectedNodeInfo) {
-          if (multipleSelect) {
-            if (selectedNodeInfo.selectedNodeId === datasource.id) {
-              setSelected(!selected);
-            }
-          } else {
-            setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
-          }
+      .getSelectedNodes()
+      .subscribe(selectedNodesIds => {
+        if (selectedNodesIds && selectedNodesIds.indexOf(datasource.id) > -1) {
+          setSelected(true);
         } else {
           setSelected(false);
         }
@@ -205,7 +199,7 @@ const ChartNode = ({
       onClickNode(datasource);
     }
 
-    selectNodeService.sendSelectedNodeInfo(datasource.id);
+    selectNodeService.toggleSelectNode(datasource.id);
   };
 
   const dragstartHandler = event => {

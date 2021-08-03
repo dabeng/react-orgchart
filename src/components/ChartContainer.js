@@ -8,7 +8,7 @@ import React, {
   useCallback
 } from "react";
 import PropTypes from "prop-types";
-import { selectNodeService, useDebouncedState } from "./service";
+import { dragNodeService, selectNodeService, useDebouncedState } from "./service";
 import JSONDigger from "json-digger";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -113,7 +113,7 @@ const ChartContainer = forwardRef(
         if (onClickChart) {
           onClickChart();
         }
-        selectNodeService.clearSelectedNodeInfo();
+        selectNodeService.clearSelectedNodes();
       }
     };
 
@@ -355,5 +355,7 @@ const ChartContainer = forwardRef(
 
 ChartContainer.propTypes = propTypes;
 ChartContainer.defaultProps = defaultProps;
+ChartContainer.selectNodeService = selectNodeService;
+ChartContainer.dragNodeService = dragNodeService;
 
 export default ChartContainer;

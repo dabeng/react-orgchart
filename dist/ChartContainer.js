@@ -175,7 +175,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
         onClickChart();
       }
 
-      _service.selectNodeService.clearSelectedNodeInfo();
+      _service.selectNodeService.clearSelectedNodes();
     }
   };
 
@@ -423,5 +423,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
 });
 ChartContainer.propTypes = propTypes;
 ChartContainer.defaultProps = defaultProps;
+ChartContainer.selectNodeService = _service.selectNodeService;
+ChartContainer.dragNodeService = _service.dragNodeService;
 var _default = ChartContainer;
 exports.default = _default;
