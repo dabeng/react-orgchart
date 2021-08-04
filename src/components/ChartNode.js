@@ -68,7 +68,7 @@ const ChartNode = ({
     const subs2 = selectNodeService
       .getSelectedNodes()
       .subscribe(selectedNodesIds => {
-        if (selectedNodesIds && selectedNodesIds.indexOf(datasource.id) > -1) {
+        if (selectedNodesIds && selectedNodesIds.find((node) => node.id === datasource.id)) {
           setSelected(true);
         } else {
           setSelected(false);
@@ -199,7 +199,7 @@ const ChartNode = ({
       onClickNode(datasource);
     }
 
-    selectNodeService.toggleSelectNode(datasource.id);
+    selectNodeService.toggleSelectNode(datasource);
   };
 
   const dragstartHandler = event => {

@@ -126,7 +126,9 @@ var ChartNode = function ChartNode(_ref) {
     });
 
     var subs2 = _service.selectNodeService.getSelectedNodes().subscribe(function (selectedNodesIds) {
-      if (selectedNodesIds && selectedNodesIds.indexOf(datasource.id) > -1) {
+      if (selectedNodesIds && selectedNodesIds.find(function (node) {
+        return node.id === datasource.id;
+      })) {
         setSelected(true);
       } else {
         setSelected(false);
@@ -255,7 +257,7 @@ var ChartNode = function ChartNode(_ref) {
       onClickNode(datasource);
     }
 
-    _service.selectNodeService.toggleSelectNode(datasource.id);
+    _service.selectNodeService.toggleSelectNode(datasource);
   };
 
   var dragstartHandler = function dragstartHandler(event) {
