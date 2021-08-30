@@ -91,8 +91,10 @@ const ChartContainer = forwardRef(
           attachRel(item, flags === "00" ? flags : "1" + (data.length > 1 ? 1 : 0));
         });
       }
-      data.relationship =
-        flags + (data.children && data.children.length > 0 ? 1 : 0);
+
+      data = Object.assign({}, data)
+      data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
+
       if (data.children) {
         data.children.forEach(function (item) {
           attachRel(item, "1" + (data.children.length > 1 ? 1 : 0));
