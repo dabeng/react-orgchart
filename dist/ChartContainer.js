@@ -148,6 +148,7 @@ var ChartContainer = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
       });
     }
 
+    data = Object.assign({}, data);
     data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
 
     if (data.children) {
