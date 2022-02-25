@@ -46,9 +46,9 @@ const ChartNode = ({
   ]
     .filter(item => item)
     .join(" ");
-    
+
   useEffect(() => {
-    if(datasource?.collapsed) {
+    if (datasource?.collapsed) {
       setIsChildrenCollapsed(true);
     }
   }, [datasource])
