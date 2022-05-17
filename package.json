@@ -1,15 +1,6 @@
 {
   "name": "@dabeng/react-orgchart",
   "version": "1.0.0",
-  "main": "./dist/ChartContainer.js",
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dabeng/react-orgchart.git"
-  },
   "keywords": [
     "react",
     "component",
@@ -22,10 +13,7 @@
   ],
   "author": "dabeng <dabeng413@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dabeng/react-orgchart/issues"
-  },
-  "homepage": "https://github.com/dabeng/react-orgchart#readme",
+  "homepage": "https://coderwomanofficial.github.io/web-developer-roadmap/",
   "babel": {
     "presets": [
       "@babel/preset-env",
@@ -47,7 +35,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.3.0",
+    "react-scripts": "3.4.0",
     "uuid": "^7.0.2"
   },
   "peerDependencies": {
