@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "gh-pages": "^4.0.0",
     "html2canvas": "^1.0.0-rc.5",
     "json-digger": "^1.1.5",
     "jspdf": "^2.3.1",
@@ -47,6 +48,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "deploy": "gh-pages -b master -d build",
     "publish:npm": "rm -rf dist && mkdir dist &&  babel src/components -d dist --copy-files"
   },
   "eslintConfig": {
