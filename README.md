@@ -1,12 +1,19 @@
+## Forked, to be used by AL.KontoAnsvarlig
+
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
 # [jQuery Version](https://github.com/dabeng/OrgChart)
+
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
+
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
+
 # [Vue.js Version](https://github.com/dabeng/vue-orgchart)
+
 # [Angular Version -- the most space-saving solution](https://github.com/dabeng/ng-orgchart)
 
 ## Features
+
 - expand/collapse nodes
 - Allows user to change orgchart structure by drag/drop nodes
 - Allows user to edit orgchart
@@ -15,6 +22,7 @@
 - Allows user to customize the internal structure for every node
 
 ## Props
+
 <table>
   <thead>
     <tr>
@@ -107,6 +115,7 @@
 </table>
 
 ## Methods
+
 <table>
   <thead>
     <tr>
@@ -127,6 +136,7 @@
 </table>
 
 ## Install
+
 ```
 npm install @dabeng/react-orgchart
 ```
