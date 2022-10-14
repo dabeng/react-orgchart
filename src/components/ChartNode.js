@@ -63,21 +63,19 @@ const ChartNode = ({
       }
     });
 
-    const subs2 = selectNodeService
-      .getSelectedNodeInfo()
-      .subscribe(selectedNodeInfo => {
-        if (selectedNodeInfo) {
-          if (multipleSelect) {
-            if (selectedNodeInfo.selectedNodeId === datasource.id) {
-              setSelected(true);
-            }
-          } else {
-            setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
+    const subs2 = selectNodeService.getSelectedNodeInfo().subscribe(selectedNodeInfo => {
+      if (selectedNodeInfo) {
+        if (multipleSelect) {
+          if (selectedNodeInfo.selectedNodeId === datasource.id) {
+            setSelected(true);
           }
         } else {
-          setSelected(false);
+          setSelected(selectedNodeInfo.selectedNodeId === datasource.id);
         }
-      });
+      } else {
+        setSelected(false);
+      }
+    });
 
     return () => {
       subs1.unsubscribe();
@@ -88,13 +86,8 @@ const ChartNode = ({
   const addArrows = e => {
     const node = e.target.closest("li");
     const parent = node.parentNode.closest("li");
-    const isAncestorsCollapsed =
-      node && parent
-        ? parent.firstChild.classList.contains("hidden")
-        : undefined;
-    const isSiblingsCollapsed = Array.from(
-      node.parentNode.children
-    ).some(item => item.classList.contains("hidden"));
+    const isAncestorsCollapsed = node && parent ? parent.firstChild.classList.contains("hidden") : undefined;
+    const isSiblingsCollapsed = Array.from(node.parentNode.children).some(item => item.classList.contains("hidden"));
 
     setTopEdgeExpanded(!isAncestorsCollapsed);
     setRightEdgeExpanded(!isSiblingsCollapsed);
@@ -119,24 +112,18 @@ const ChartNode = ({
       node.firstChild.classList.remove("hidden");
     } else {
       // 向下折叠，则折叠所有祖先节点以及祖先节点的兄弟节点
-      const isSiblingsCollapsed = Array.from(
-        actionNode.parentNode.children
-      ).some(item => item.classList.contains("hidden"));
+      const isSiblingsCollapsed = Array.from(actionNode.parentNode.children).some(item =>
+        item.classList.contains("hidden")
+      );
       if (!isSiblingsCollapsed) {
         toggleSiblings(actionNode);
       }
       actionNode.classList.add(
-        ...(
-          "isAncestorsCollapsed" +
-          (isSiblingsCollapsed ? "" : " isSiblingsCollapsed")
-        ).split(" ")
+        ...("isAncestorsCollapsed" + (isSiblingsCollapsed ? "" : " isSiblingsCollapsed")).split(" ")
       );
       node.firstChild.classList.add("hidden");
       // 如果还有展开的祖先节点，那继续折叠关闭之
-      if (
-        node.parentNode.closest("li") &&
-        !node.parentNode.closest("li").firstChild.classList.contains("hidden")
-      ) {
+      if (node.parentNode.closest("li") && !node.parentNode.closest("li").firstChild.classList.contains("hidden")) {
         toggleAncestors(node);
       }
     }
@@ -156,9 +143,9 @@ const ChartNode = ({
 
   const toggleSiblings = actionNode => {
     let node = actionNode.previousSibling;
-    const isSiblingsCollapsed = Array.from(
-      actionNode.parentNode.children
-    ).some(item => item.classList.contains("hidden"));
+    const isSiblingsCollapsed = Array.from(actionNode.parentNode.children).some(item =>
+      item.classList.contains("hidden")
+    );
     actionNode.classList.toggle("isSiblingsCollapsed", !isSiblingsCollapsed);
     // 先处理同级的兄弟节点
     while (node) {
@@ -179,9 +166,7 @@ const ChartNode = ({
       node = node.nextSibling;
     }
     // 在展开兄弟节点的同时，还要展开父节点
-    const isAncestorsCollapsed = actionNode.parentNode
-      .closest("li")
-      .firstChild.classList.contains("hidden");
+    const isAncestorsCollapsed = actionNode.parentNode.closest("li").firstChild.classList.contains("hidden");
     if (isAncestorsCollapsed) {
       toggleAncestors(actionNode);
     }
@@ -229,10 +214,7 @@ const ChartNode = ({
       return;
     }
     dragNodeService.clearDragInfo();
-    changeHierarchy(
-      JSON.parse(event.dataTransfer.getData("text/plain")),
-      event.currentTarget.id
-    );
+    changeHierarchy(JSON.parse(event.dataTransfer.getData("text/plain")), event.currentTarget.id);
   };
 
   return (
@@ -255,69 +237,46 @@ const ChartNode = ({
         ) : (
           <>
             <div className="oc-heading">
-              {datasource.relationship &&
-                datasource.relationship.charAt(2) === "1" && (
-                  <i className="oci oci-leader oc-symbol" />
-                )}
+              {datasource.relationship && datasource.relationship.charAt(2) === "1" && (
+                <i className="oci oci-leader oc-symbol" />
+              )}
               {datasource.name}
             </div>
             <div className="oc-content">{datasource.title}</div>
           </>
         )}
-        {collapsible &&
-          datasource.relationship &&
-          datasource.relationship.charAt(0) === "1" && (
+        {collapsible && datasource.relationship && datasource.relationship.charAt(0) === "1" && (
+          <i
+            className={`oc-edge verticalEdge topEdge oci ${
+              topEdgeExpanded === undefined ? "" : topEdgeExpanded ? "oci-chevron-down" : "oci-chevron-up"
+            }`}
+            onClick={topEdgeClickHandler}
+          />
+        )}
+        {collapsible && datasource.relationship && datasource.relationship.charAt(1) === "1" && (
+          <>
             <i
-              className={`oc-edge verticalEdge topEdge oci ${
-                topEdgeExpanded === undefined
-                  ? ""
-                  : topEdgeExpanded
-                  ? "oci-chevron-down"
-                  : "oci-chevron-up"
+              className={`oc-edge horizontalEdge rightEdge oci ${
+                rightEdgeExpanded === undefined ? "" : rightEdgeExpanded ? "oci-chevron-left" : "oci-chevron-right"
               }`}
-              onClick={topEdgeClickHandler}
+              onClick={hEdgeClickHandler}
             />
-          )}
-        {collapsible &&
-          datasource.relationship &&
-          datasource.relationship.charAt(1) === "1" && (
-            <>
-              <i
-                className={`oc-edge horizontalEdge rightEdge oci ${
-                  rightEdgeExpanded === undefined
-                    ? ""
-                    : rightEdgeExpanded
-                    ? "oci-chevron-left"
-                    : "oci-chevron-right"
-                }`}
-                onClick={hEdgeClickHandler}
-              />
-              <i
-                className={`oc-edge horizontalEdge leftEdge oci ${
-                  leftEdgeExpanded === undefined
-                    ? ""
-                    : leftEdgeExpanded
-                    ? "oci-chevron-right"
-                    : "oci-chevron-left"
-                }`}
-                onClick={hEdgeClickHandler}
-              />
-            </>
-          )}
-        {collapsible &&
-          datasource.relationship &&
-          datasource.relationship.charAt(2) === "1" && (
             <i
-              className={`oc-edge verticalEdge bottomEdge oci ${
-                bottomEdgeExpanded === undefined
-                  ? ""
-                  : bottomEdgeExpanded
-                  ? "oci-chevron-up"
-                  : "oci-chevron-down"
+              className={`oc-edge horizontalEdge leftEdge oci ${
+                leftEdgeExpanded === undefined ? "" : leftEdgeExpanded ? "oci-chevron-right" : "oci-chevron-left"
               }`}
-              onClick={bottomEdgeClickHandler}
+              onClick={hEdgeClickHandler}
             />
-          )}
+          </>
+        )}
+        {collapsible && datasource.relationship && datasource.relationship.charAt(2) === "1" && (
+          <i
+            className={`oc-edge verticalEdge bottomEdge oci ${
+              bottomEdgeExpanded === undefined ? "" : bottomEdgeExpanded ? "oci-chevron-up" : "oci-chevron-down"
+            }`}
+            onClick={bottomEdgeClickHandler}
+          />
+        )}
       </div>
       {datasource.children && datasource.children.length > 0 && (
         <ul className={isChildrenCollapsed ? "hidden" : ""}>
