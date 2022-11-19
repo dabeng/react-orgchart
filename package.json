@@ -1,6 +1,6 @@
 {
   "name": "@dabeng/react-orgchart",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "main": "./dist/ChartContainer.js",
   "files": [
     "dist",
