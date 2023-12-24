@@ -40,6 +40,7 @@ const ChartNode = ({
 
   const nodeClass = [
     "oc-node",
+    datasource.className,
     isChildrenCollapsed ? "isChildrenCollapsed" : "",
     allowedDrop ? "allowedDrop" : "",
     selected ? "selected" : ""
