@@ -49,6 +49,12 @@ const ChartNode = ({
     .join(" ");
 
   useEffect(() => {
+    if (datasource?.collapsed) {
+      setIsChildrenCollapsed(true);
+    }
+  }, [datasource])
+
+  useEffect(() => {
     const subs1 = dragNodeService.getDragInfo().subscribe(draggedInfo => {
       if (draggedInfo) {
         setAllowedDrop(
